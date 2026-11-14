@@ -1,7 +1,8 @@
 import { useI18n } from '../i18n';
+import type { HealthAnswer } from '../types';
 import { Segmented } from './Segmented';
 
-export type Answer = 'yes' | 'no' | 'notSure';
+export type Answer = HealthAnswer;
 
 interface QuestionProps {
   number: number;

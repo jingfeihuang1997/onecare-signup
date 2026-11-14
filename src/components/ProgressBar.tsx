@@ -9,13 +9,21 @@ interface ProgressBarProps {
   /** Name of the current section. */
   name: string;
   onOpenSections: () => void;
+  /** Hidden from 900px, where the side list takes over. */
+  narrowOnly?: boolean;
 }
 
 /** Option A: sticky bar with one segment per section and the "Sections" button. */
-export function ProgressBar({ current, total, name, onOpenSections }: ProgressBarProps) {
+export function ProgressBar({
+  current,
+  total,
+  name,
+  onOpenSections,
+  narrowOnly = false,
+}: ProgressBarProps) {
   const { t } = useI18n();
   return (
-    <nav className="oc-progress" aria-label={t('progress.label')}>
+    <nav className={cx('oc-progress', narrowOnly && 'oc-narrow-only')} aria-label={t('progress.label')}>
       <div className="oc-progress__main">
         <div className="oc-progress__segs" aria-hidden="true">
           {Array.from({ length: total }, (_, index) => (

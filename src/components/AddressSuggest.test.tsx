@@ -1,13 +1,13 @@
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { AddressSuggest, type AddressSuggestion } from './AddressSuggest';
+import { AddressSuggest, type AddressOption } from './AddressSuggest';
 
-const suggestions: AddressSuggestion[] = [
+const suggestions: AddressOption[] = [
   { id: '1', main: '1420 Maple St', sub: 'Ann Arbor, MI 48104' },
   { id: '2', main: '1420 Maple Rd', sub: 'Troy, MI 48084' },
 ];
 
-function renderSuggest(list: AddressSuggestion[] = suggestions) {
+function renderSuggest(list: AddressOption[] = suggestions) {
   const onSelect = vi.fn();
   const onChange = vi.fn();
   render(

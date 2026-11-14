@@ -1,5 +1,6 @@
-export { AddressSuggest, type AddressSuggestion } from './AddressSuggest';
+export { AddressSuggest, type AddressOption } from './AddressSuggest';
 export { BottomSheet } from './BottomSheet';
+export { CameraView } from './CameraView';
 export { Actions, Button, type ButtonProps } from './Button';
 export { Card } from './Card';
 export { Chip, type ChipTone } from './Chip';
@@ -18,7 +19,9 @@ export { ReviewList, type ReviewRow } from './ReviewList';
 export { SectionNav, type SectionNavItem } from './SectionNav';
 export { Segmented, type SegmentedOption } from './Segmented';
 export { SignatureBox } from './SignatureBox';
+export { SignaturePad } from './SignaturePad';
 export { Stamps, type StampItem, type StampState } from './Stamps';
 export { SubPanel } from './SubPanel';
+export { SubHeadingContext, useSubHeading } from './subHeading';
 export { VaccineList, VaccineRow } from './VaccineRow';
 export { ReasonList, WhyWeAsk, type ReasonItem } from './WhyWeAsk';

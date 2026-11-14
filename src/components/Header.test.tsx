@@ -24,8 +24,8 @@ describe('Header', () => {
   it('steps the root font size through 100, 112, 125 and 140 percent', async () => {
     const user = userEvent.setup();
     renderHeader();
-    const smaller = screen.getByRole('button', { name: 'Smaller text' });
-    const larger = screen.getByRole('button', { name: 'Larger text' });
+    const smaller = screen.getByRole('button', { name: 'A− Smaller text' });
+    const larger = screen.getByRole('button', { name: 'A+ Larger text' });
     expect(document.documentElement.style.fontSize).toBe('100%');
     expect(smaller).toBeDisabled();
 
@@ -44,12 +44,12 @@ describe('Header', () => {
   it('changes the language from the menu and sets it on <html lang>', async () => {
     const user = userEvent.setup();
     renderHeader();
-    const toggle = screen.getByRole('button', { name: 'Language: English. Change language' });
+    const toggle = screen.getByRole('button', { name: 'EN Language: English. Change language' });
     expect(toggle).toHaveAttribute('aria-expanded', 'false');
     await user.click(toggle);
     await user.click(screen.getByRole('button', { name: 'Español' }));
     expect(document.documentElement.lang).toBe('es');
-    expect(screen.getByRole('button', { name: 'Texto más grande' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'A+ Texto más grande' })).toBeInTheDocument();
   });
 
   it('hides the language button on request', () => {

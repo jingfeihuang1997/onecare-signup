@@ -10,7 +10,11 @@ interface HeaderProps {
   showLanguage?: boolean;
 }
 
-/** Pharmacy name, OneCare credit, language menu and the A− / A+ text-size buttons. */
+/**
+ * Pharmacy name, OneCare credit, language menu and the text-size buttons. Each button's
+ * name starts with the text it shows ("A+", "EN") and then says what it does, so the
+ * visible label is part of the accessible name (WCAG 2.5.3).
+ */
 export function Header({ pharmacyName, showLanguage = true }: HeaderProps) {
   const { t, language, setLanguage } = useI18n();
   const textSize = useTextSize();
@@ -59,12 +63,13 @@ export function Header({ pharmacyName, showLanguage = true }: HeaderProps) {
               type="button"
               className="oc-iconbtn"
               ref={toggleRef}
-              aria-label={t('header.language', { language: t(`language.${language}`) })}
               aria-expanded={menuOpen}
               aria-controls={menuOpen ? menuId : undefined}
               onClick={() => setMenuOpen((open) => !open)}
             >
               {t(`language.short.${language}`)}
+              {' '}
+              <span className="oc-sr">{t('header.language', { language: t(`language.${language}`) })}</span>
             </button>
             {menuOpen ? (
               <div className="oc-menu" id={menuId} role="group" aria-label={t('header.languageMenu')}>
@@ -92,20 +97,22 @@ export function Header({ pharmacyName, showLanguage = true }: HeaderProps) {
         <button
           type="button"
           className="oc-iconbtn"
-          aria-label={t('header.smallerText')}
           disabled={!textSize.canDecrease}
           onClick={textSize.decrease}
         >
           {t('header.smallerGlyph')}
+          {' '}
+          <span className="oc-sr">{t('header.smallerText')}</span>
         </button>
         <button
           type="button"
           className="oc-iconbtn oc-iconbtn--lg"
-          aria-label={t('header.largerText')}
           disabled={!textSize.canIncrease}
           onClick={textSize.increase}
         >
           {t('header.largerGlyph')}
+          {' '}
+          <span className="oc-sr">{t('header.largerText')}</span>
         </button>
       </div>
     </header>

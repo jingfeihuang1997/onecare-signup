@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, ReactNode } from 'react';
+import { forwardRef, type ButtonHTMLAttributes, type ReactNode } from 'react';
 import { cx } from './cx';
 import { Icon, type IconName } from './Icon';
 
@@ -11,18 +11,14 @@ export interface ButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement
   icon?: IconName;
 }
 
-export function Button({
-  variant = 'default',
-  small = false,
-  grow = false,
-  icon,
-  type = 'button',
-  children,
-  ...button
-}: ButtonProps) {
+export const Button = forwardRef<HTMLButtonElement, ButtonProps>(function Button(
+  { variant = 'default', small = false, grow = false, icon, type = 'button', children, ...button },
+  ref,
+) {
   return (
     <button
       {...button}
+      ref={ref}
       type={type}
       className={cx(
         'oc-btn',
@@ -36,7 +32,7 @@ export function Button({
       {children}
     </button>
   );
-}
+});
 
 /** A row of buttons, for example Back and Continue. */
 export function Actions({ children }: { children: ReactNode }) {

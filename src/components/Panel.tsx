@@ -1,4 +1,4 @@
-import { useId, type ReactNode } from 'react';
+import { useId, type ReactNode, type Ref } from 'react';
 import { cx } from './cx';
 import { Icon } from './Icon';
 import { WhyWeAsk } from './WhyWeAsk';
@@ -17,6 +17,8 @@ interface PanelProps {
   /** Content of the "Why we ask" row under the title. */
   why?: ReactNode;
   id?: string;
+  /** The head button, so the shell can move focus to the panel's heading when it opens. */
+  headRef?: Ref<HTMLButtonElement>;
   children?: ReactNode;
 }
 
@@ -34,6 +36,7 @@ export function Panel({
   onToggle,
   why,
   id,
+  headRef,
   children,
 }: PanelProps) {
   const bodyId = useId();
@@ -44,6 +47,7 @@ export function Panel({
         <button
           type="button"
           className="oc-panel__head"
+          ref={headRef}
           aria-expanded={open}
           aria-controls={open ? bodyId : undefined}
           onClick={onToggle}

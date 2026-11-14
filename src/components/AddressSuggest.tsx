@@ -2,7 +2,7 @@ import { useId, useState, type KeyboardEvent } from 'react';
 import { useI18n } from '../i18n';
 import { cx } from './cx';
 
-export interface AddressSuggestion {
+export interface AddressOption {
   id: string;
   /** Street line, for example "1420 Maple St". */
   main: string;
@@ -14,17 +14,27 @@ interface AddressSuggestProps {
   label: string;
   value: string;
   onChange: (value: string) => void;
-  suggestions: readonly AddressSuggestion[];
-  onSelect: (suggestion: AddressSuggestion) => void;
+  suggestions: readonly AddressOption[];
+  onSelect: (suggestion: AddressOption) => void;
+  /** Id of the input, so focus can be sent to it. */
+  id?: string;
 }
 
 /**
  * Address type-ahead as a combobox: focus stays in the input, the arrow keys move the
  * highlight, Enter picks, Escape hides the list.
  */
-export function AddressSuggest({ label, value, onChange, suggestions, onSelect }: AddressSuggestProps) {
+export function AddressSuggest({
+  label,
+  value,
+  onChange,
+  suggestions,
+  onSelect,
+  id: givenId,
+}: AddressSuggestProps) {
   const { t } = useI18n();
-  const id = useId();
+  const autoId = useId();
+  const id = givenId ?? autoId;
   const listId = `${id}-list`;
   const [highlight, setHighlight] = useState(0);
   const [dismissed, setDismissed] = useState(false);
@@ -64,7 +74,7 @@ export function AddressSuggest({ label, value, onChange, suggestions, onSelect }
           type="text"
           role="combobox"
           aria-expanded={open}
-          aria-controls={listId}
+          aria-controls={open ? listId : undefined}
           aria-autocomplete="list"
           aria-activedescendant={active >= 0 ? `${id}-option-${active}` : undefined}
           autoComplete="street-address"
@@ -77,14 +87,9 @@ export function AddressSuggest({ label, value, onChange, suggestions, onSelect }
           onKeyDown={onKeyDown}
         />
       </div>
-      <div
-        className={cx('oc-suggest', !open && 'oc-sr')}
-        id={listId}
-        role="listbox"
-        aria-label={t('address.suggestions')}
-      >
-        {open
-          ? suggestions.map((suggestion, index) => (
+      {open ? (
+        <div className="oc-suggest" id={listId} role="listbox" aria-label={t('address.suggestions')}>
+          {suggestions.map((suggestion, index) => (
               <button
                 key={suggestion.id}
                 type="button"
@@ -98,9 +103,9 @@ export function AddressSuggest({ label, value, onChange, suggestions, onSelect }
                 <span className="oc-suggest__main">{suggestion.main}</span>
                 <span className="oc-suggest__sub">{suggestion.sub}</span>
               </button>
-            ))
-          : null}
-      </div>
+          ))}
+        </div>
+      ) : null}
     </div>
   );
 }

@@ -11,7 +11,9 @@
    - Added: focus ring, hover, pressed, disabled, field error, reduced motion,
      "Why we ask" row with divider, vaccine row expand button, language menu. */
 
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+/* The scrollbar keeps its place whether or not the page scrolls, so the page does not
+   shift sideways when a section grows or shrinks. */
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scrollbar-gutter:stable}
 body{margin:0}
 .oc,.oc *,.oc *::before,.oc *::after{box-sizing:border-box}
 
@@ -53,15 +55,15 @@ body{margin:0}
 .oc-sr{position:absolute;width:1px;height:1px;margin:-1px;padding:0;border:0;overflow:hidden;clip-path:inset(50%);white-space:nowrap}
 
 /* Header */
-.oc-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:var(--gap-sm) var(--gutter);padding:var(--gap-sm) var(--gutter);background:var(--surface);border-bottom:var(--panel-border)}
+.oc-header{display:flex;align-items:center;justify-content:space-between;gap:var(--gap-sm);padding:var(--gap-sm) var(--gutter);background:var(--surface);border-bottom:var(--panel-border)}
 .oc--b .oc-header{background:transparent;border-bottom:0}
 .oc--page .oc-header{padding:var(--gap-sm) clamp(16px,4vw,48px)}
-.oc-brand{display:flex;flex-direction:column;gap:2px;min-width:0}
-.oc-brand__name{font-size:var(--fs-base);font-weight:700;line-height:1.2}
-.oc-brand__by{display:flex;align-items:center;gap:6px;font-size:var(--fs-xs);color:var(--muted)}
+.oc-brand{display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-width:0}
+.oc-brand__name{font-size:clamp(1rem,.7rem + 1.4vw,1.125rem);font-weight:700;line-height:1.2}
+.oc-brand__by{display:flex;flex-wrap:wrap;align-items:center;gap:2px 6px;font-size:var(--fs-xs);color:var(--muted)}
 .oc-brand__by strong{color:var(--ink)}
 .oc-logo{display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 6px;border:1.5px dashed var(--edge);border-radius:5px;font-size:.6875rem;font-weight:700;letter-spacing:.5px}
-.oc-tools{position:relative;display:flex;gap:6px}
+.oc-tools{position:relative;display:flex;flex:0 0 auto;gap:6px}
 .oc-iconbtn{display:inline-flex;align-items:center;justify-content:center;min-width:var(--tap);height:var(--tap);padding:0 10px;border:var(--edge-w) solid var(--edge);border-radius:var(--radius-ctl);background:var(--surface);font-size:var(--fs-md);font-weight:700}
 .oc-iconbtn--lg{font-size:var(--fs-lg)}
 .oc-menu{position:absolute;top:calc(100% + 6px);right:0;z-index:5;display:flex;flex-direction:column;gap:var(--gap-xs);min-width:180px;padding:6px;border:var(--panel-border);border-radius:var(--radius);background:var(--surface);box-shadow:0 8px 24px rgba(23,32,27,.18)}
@@ -69,8 +71,16 @@ body{margin:0}
 .oc-menu__item.is-on{border-color:var(--primary);background:var(--tint);font-weight:700}
 .oc--b .oc-menu__item.is-on{border-color:var(--ink)}
 
+/* Top bar: header and progress stay in place while the page scrolls under them */
+.oc-top{position:sticky;top:0;z-index:4;background:var(--ground)}
+.oc--b .oc-top:has(.oc-stamps){padding-bottom:var(--gap-sm)}
+@media (max-height:520px),(max-width:260px){
+  /* On a very short or very narrow screen (or at high zoom) it would hide too much. */
+  .oc-top{position:static}
+}
+
 /* Progress: bar (A) and stamps (B) */
-.oc-progress{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:var(--gap);padding:var(--gap-sm) max(var(--gutter),calc((100% - 560px)/2 + var(--gutter)));background:var(--surface);border-bottom:var(--panel-border)}
+.oc-progress{display:flex;align-items:center;justify-content:space-between;gap:var(--gap);padding:var(--gap-sm) max(var(--gutter),calc((100% - 560px)/2 + var(--gutter)));background:var(--surface);border-bottom:var(--panel-border)}
 .oc-progress__main{display:flex;flex-direction:column;gap:6px;flex:1 1 auto;min-width:0}
 .oc-progress__segs{display:flex;gap:4px}
 .oc-progress__seg{flex:1 1 0;height:7px;border-radius:4px;background:#C9CDC6}
@@ -86,6 +96,8 @@ body{margin:0}
 
 /* Page body and type */
 .oc-main{display:flex;flex-direction:column;gap:var(--gap);width:100%;max-width:560px;margin:0 auto;padding:var(--gap) var(--gutter) 24px}
+.oc [tabindex="-1"]:focus{outline:none}
+.oc-h1{scroll-margin-top:calc(var(--oc-top-h,76px) + 8px)}
 .oc-h1{margin:0;font-size:var(--fs-xl);line-height:1.2;font-weight:700}
 .oc-h2{margin:0;font-size:var(--fs-lg);line-height:1.25;font-weight:700}
 .oc-lead{margin:0;font-size:var(--fs-base);color:var(--muted)}
@@ -103,7 +115,7 @@ body{margin:0}
 .oc-card__title{font-size:var(--fs-lg);font-weight:700;line-height:1.25}
 
 /* Panel: folded = review summary, tap the whole head to open and edit */
-.oc-panel{background:var(--surface);border:var(--panel-border);border-radius:var(--radius)}
+.oc-panel{background:var(--surface);border:var(--panel-border);border-radius:var(--radius);scroll-margin-top:calc(var(--oc-top-h,76px) + 8px)}
 .oc-panel.is-open{border:2px solid var(--primary);box-shadow:var(--lift)}
 .oc--b .oc-panel.is-open{border-color:var(--ink)}
 .oc-panel__h{margin:0;font:inherit}
@@ -149,7 +161,10 @@ body{margin:0}
 .oc-btn--small{min-height:var(--tap);padding:0 var(--pad);font-size:var(--fs-md)}
 .oc-btn--grow{flex:1 1 0}
 .oc-btn--link,.oc--b .oc-btn--link{justify-content:flex-start;min-height:var(--tap);padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;font-size:var(--fs-base);color:var(--primary);text-decoration:underline;text-align:left}
-.oc-actions{display:flex;gap:var(--gap)}
+/* Back sits beside the main button; when the main label is too long for that ("Sign and get
+   Maria's pass", or a longer translation) the main button takes the row above Back. */
+.oc-actions{display:flex;flex-wrap:wrap-reverse;gap:var(--gap)}
+.oc-actions > .oc-btn:not(.oc-btn--grow) ~ .oc-btn--grow{flex:1 1 auto}
 
 /* Choice tile (radio, checkbox, or navigation) */
 .oc-choice{display:flex;align-items:center;gap:var(--gap);width:100%;min-height:var(--row);padding:var(--gap-sm) var(--pad);border:var(--edge-w) solid var(--edge);border-radius:var(--radius-ctl);background:var(--surface);font-size:var(--fs-base);color:var(--ink);text-align:left;text-decoration:none}
@@ -222,6 +237,7 @@ body{margin:0}
 
 /* Signature */
 .oc-sign{display:flex;align-items:center;justify-content:center;min-height:96px;padding:var(--gap-sm);border:var(--edge-w) solid var(--edge);border-radius:var(--radius-ctl);background:var(--surface);overflow:hidden}
+.oc-sign__canvas{display:block;width:100%;height:120px;touch-action:none;cursor:crosshair;color:var(--ink)}
 .oc-sign__typed{font-family:var(--script);font-size:2.75rem;font-weight:600;line-height:1;overflow-wrap:anywhere;text-align:center}
 
 /* Clinic pass (B) */
@@ -237,11 +253,13 @@ body{margin:0}
 
 /* Camera capture (covers the screen) */
 .oc-camera{--focus:#FFFFFF;position:fixed;inset:0;z-index:20;justify-content:space-between;background:#101512;color:#FFFFFF}
-.oc-camera__top{display:flex;flex-direction:column;gap:6px;padding:24px 20px 0;text-align:center}
+.oc-camera__video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.oc-camera__video--photo{object-fit:contain}
+.oc-camera__top{position:relative;display:flex;flex-direction:column;gap:6px;padding:24px 20px 16px;background:linear-gradient(#101512,rgba(16,21,18,0));text-align:center}
 .oc-camera__title{margin:0;font-size:var(--fs-xl);font-weight:700}
 .oc-camera__text{margin:0;font-size:var(--fs-base);color:#E3E8E4}
-.oc-camera__frame{display:flex;align-items:center;justify-content:center;align-self:center;width:min(334px,calc(100% - 40px));aspect-ratio:334/210;padding:16px;border:3px dashed #FFFFFF;border-radius:16px;font-size:var(--fs-base);color:#E3E8E4;text-align:center}
-.oc-camera__bar{display:flex;align-items:center;justify-content:space-between;padding:16px 20px max(24px,env(safe-area-inset-bottom))}
+.oc-camera__frame{position:relative;display:flex;align-items:center;justify-content:center;align-self:center;width:min(334px,calc(100% - 40px));aspect-ratio:334/210;padding:16px;border:3px dashed #FFFFFF;border-radius:16px;font-size:var(--fs-base);color:#E3E8E4;text-align:center}
+.oc-camera__bar{position:relative;display:flex;align-items:center;justify-content:space-between;gap:var(--gap);padding:16px 20px max(24px,env(safe-area-inset-bottom));background:linear-gradient(rgba(16,21,18,0),#101512)}
 .oc-camera__btn{min-width:96px;min-height:48px;padding:0;border:0;background:transparent;font-size:var(--fs-base);font-weight:700;color:#FFFFFF;text-decoration:underline}
 .oc-shutter{display:block;width:72px;height:72px;padding:0;border:5px solid #FFFFFF;border-radius:36px;background:var(--accent)}
 
@@ -266,9 +284,13 @@ body{margin:0}
 .oc-drop__title{font-size:var(--fs-base);font-weight:700}
 .oc-qr{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:88px;height:88px;border:2px dashed var(--edge);border-radius:8px;font-size:var(--fs-xs);font-weight:700}
 .oc-rowflex{display:flex;align-items:center;gap:var(--gap)}
+.oc-rowflex--wrap{flex-wrap:wrap;gap:var(--gap-sm)}
+.oc-thumb{flex:0 0 auto;width:72px;height:46px;border:var(--edge-w) solid var(--edge);border-radius:8px;object-fit:cover;background:var(--soft)}
+.oc-rowflex__text{flex:1 1 auto;min-width:0;font-weight:600}
+.oc-drop.is-over{border-color:var(--primary);background:var(--tint)}
 @media (min-width:900px){
   .oc-layout{display:grid;grid-template-columns:minmax(260px,320px) minmax(0,1fr);align-items:start;gap:24px 40px;max-width:1200px;padding:24px clamp(16px,4vw,48px) 48px}
-  .oc-aside{display:flex;position:sticky;top:24px}
+  .oc-aside{display:flex;position:sticky;top:calc(var(--oc-top-h,76px) + 24px)}
   .oc-narrow-only{display:none!important}
 }
 @media (max-width:899.98px){
@@ -302,6 +324,14 @@ body{margin:0}
 @keyframes oc-fade-in{from{opacity:0}to{opacity:1}}
 @media (prefers-reduced-motion:reduce){
   .oc,.oc *,.oc *::before,.oc *::after{transition:none!important;animation:none!important;scroll-behavior:auto!important}
+}
+
+/* Very narrow: a 390px phone zoomed to 200% leaves about 195px. Tighter insets, and the
+   status chip may wrap, so nothing sticks out sideways. */
+@media (max-width:260px){
+  .oc{--gutter:10px;--pad:8px;--gap:10px}
+  .oc-chip{white-space:normal;flex-shrink:1;max-width:100%}
+  .oc-vax__label{gap:var(--gap-sm);padding-left:var(--pad)}
 }
 
 /* Component gallery at /kit (development only) */

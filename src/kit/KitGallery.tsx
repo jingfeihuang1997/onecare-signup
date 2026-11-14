@@ -27,7 +27,7 @@ import {
   SubPanel,
   VaccineList,
   VaccineRow,
-  type AddressSuggestion,
+  type AddressOption,
   type Answer,
   type DateOfBirthValue,
   type SectionNavItem,
@@ -38,7 +38,7 @@ import { useI18n, type Language } from '../i18n';
 // Demo content for the gallery. It mirrors the reference scenario in SPEC section 8.
 // This page is a development tool, so its sample text is not in the dictionaries.
 
-const ADDRESSES: readonly AddressSuggestion[] = [
+const ADDRESSES: readonly AddressOption[] = [
   { id: 'a1', main: '1420 Maple St', sub: 'Ann Arbor, MI 48104' },
   { id: 'a2', main: '1420 Maple Rd', sub: 'Troy, MI 48084' },
   { id: 'a3', main: '1420 Maple Ave', sub: 'Kalamazoo, MI 49008' },

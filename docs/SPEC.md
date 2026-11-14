@@ -171,6 +171,8 @@ Made by the product owner after the Prompt 0 review. Where this section differs 
 10. **Insurance.** Medicare is the only insurer whose saved details can be looked up today; the prototype shows that as interface only. For any other insurance, offer a photo or upload that fills the fields, or manual entry. Offer a "no insurance" choice; it completes the section.
 11. **Field reasons.** The source is `Field_Reason.xlsx`, column "Reason (To be checked)". The patient-facing wording is an official-style rewrite kept in the dictionaries under `reason.*`. None is verified yet.
 
+12. **All vaccines are shown.** Every vaccine the clinic offers appears in the list, whatever the patient's age: all 16 in the reference scenario. Nothing is hidden by age and there is no "Not offered at [name]'s age" line. This replaces the age filter in section 5.3. The age rules stay in config and only mark a row as outside the usual age.
+
 ### 10.2 Defaults the product owner left to the builder
 
 - Vaccine rows sort due, had, none, then by a fixed display order taken from A05.

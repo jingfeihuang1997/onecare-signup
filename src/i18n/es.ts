@@ -1,11 +1,18 @@
-import type { StringKey } from './en';
+import { review, type Dictionary } from './entry';
 
-// Spanish. Keys missing here fall back to English until Prompt 9 completes the dictionary.
-export const es: Partial<Record<StringKey, string>> = {
+// Spanish (United States), formal "usted". Translated by Claude; every string should be
+// read by a native speaker before launch. Entries wrapped in review() are the health
+// questions and the consents, which need a professional translator (SPEC section 9).
+// They are listed in docs/TRANSLATION-REVIEW.md.
+// Text in [square brackets] is a placeholder waiting for a real value: keep it visible.
+export const es: Dictionary = {
   'brand.name': 'OneCare',
+
   'common.continue': 'Continuar',
   'common.back': 'Atrás',
   'common.optional': 'Opcional',
+  'common.separator': ' · ',
+
   'header.poweredBy': 'Con tecnología de',
   'header.logoPlaceholder': 'LOGO',
   'header.logoAlt': 'Marcador de posición del logotipo de OneCare',
@@ -15,15 +22,19 @@ export const es: Partial<Record<StringKey, string>> = {
   'header.largerGlyph': 'A+',
   'header.language': 'Idioma: {language}. Cambiar idioma',
   'header.languageMenu': 'Idioma',
+
+  'language.label': 'Idioma',
   'language.en': 'English',
   'language.es': 'Español',
   'language.zh-Hans': '中文',
   'language.short.en': 'EN',
   'language.short.es': 'ES',
   'language.short.zh-Hans': '中文',
+
   'progress.label': 'Progreso',
   'progress.sectionNamed': 'Sección {current} de {total} · {name}',
   'progress.sections': 'Secciones',
+
   'stamps.progress': 'Progreso del pase. Paso {current} de {total}',
   'stamps.allDone': 'Progreso del pase. Todos los pasos completos',
   'stamps.done': 'completo',
@@ -31,14 +42,17 @@ export const es: Partial<Record<StringKey, string>> = {
   'stamp.shots': 'Vacunas',
   'stamp.card': 'Tarjeta',
   'stamp.extras': 'Extras',
-  'stamp.sign': 'Firmar',
+  'stamp.sign': 'Firma',
+
   'nav.sections': 'Secciones',
   'nav.state.done': 'Completa',
   'nav.state.current': 'Usted está aquí',
   'nav.state.todo': 'Sin empezar',
   'nav.state.optional': 'Opcional',
+
   'sheet.close': 'Cerrar',
   'sheet.jumpTitle': 'Ir a una sección',
+
   'field.optional': '(opcional)',
   'dob.legend': 'Fecha de nacimiento',
   'dob.month': 'Mes',
@@ -47,9 +61,11 @@ export const es: Partial<Record<StringKey, string>> = {
   'dob.monthPlaceholder': 'MM',
   'dob.dayPlaceholder': 'DD',
   'dob.yearPlaceholder': 'AAAA',
+
   'why.ask': 'Por qué lo preguntamos',
   'why.matters': 'Por qué es importante',
   'why.draftNote': 'Texto en borrador, aún no aprobado.',
+
   'vax.status.due': 'Le toca ahora',
   'vax.status.had': 'Ya puesta · {date}',
   'vax.status.none': 'Sin registro',
@@ -58,14 +74,513 @@ export const es: Partial<Record<StringKey, string>> = {
   'vax.remove': 'Quitar',
   'vax.about': 'Sobre esta vacuna',
   'vax.goodToKnow': 'Conviene saberlo antes de la vacuna',
+
   'answer.yes': 'Sí',
   'answer.no': 'No',
   'answer.notSure': 'No sé',
   'question.numbered': '{number}. {text}',
   'question.answerLabel': 'Respuesta a la pregunta {number}',
+
   'address.suggestions': 'Sugerencias de dirección',
+
   'sign.typedPreview': 'Vista previa de la firma escrita: {name}',
   'sign.empty': 'Aún no hay firma',
+
   'pass.aria': 'Pase de la clínica',
   'pass.label': 'PASE DE LA CLÍNICA',
+
+  // Por qué lo preguntamos
+  'reason.patient.name':
+    'El nombre legal del paciente se usa para identificarlo, para encontrar su registro en la farmacia y en el registro estatal de vacunación, y para que coincida con el nombre de la reclamación al seguro. Escríbalo tal como aparece en la tarjeta del seguro o de Medicare.',
+  'reason.patient.preferredName':
+    'Opcional. Si lo indica, es el nombre que se usa para dirigirse al paciente en mensajes de texto y correos electrónicos. No se usa en las reclamaciones al seguro.',
+  'reason.patient.dob':
+    'La fecha de nacimiento se usa para verificar el seguro, para encontrar un registro existente y para determinar qué vacunas y preguntas corresponden a la edad del paciente.',
+  'reason.patient.sex':
+    'Opcional. El sexo ayuda al farmacéutico a comprobar qué vacunas y preguntas de salud corresponden. También se usa, sin su nombre, en un estudio sobre a qué grupos de personas llegan las clínicas de vacunación. Su respuesta no cambia la atención que recibe.',
+  'reason.patient.race':
+    'Opcional. La raza se usa, sin su nombre, en un estudio sobre a qué grupos de personas llegan las clínicas de vacunación, para encontrar y corregir las diferencias. Su respuesta no cambia la atención que recibe.',
+  'reason.insurance.medicareNumber':
+    'El número de Medicare es necesario para facturar a Medicare, de modo que el paciente no tenga que pagar de su bolsillo.',
+  'reason.insurance.ssn4':
+    'La farmacia usa los últimos cuatro dígitos del número de Seguro Social para facturar correctamente a Medicare, de modo que el paciente no tenga que pagar de su bolsillo.',
+  'reason.insurance.cardPhoto':
+    'Opcional. Una foto de la tarjeta permite leer los datos del seguro y completarlos automáticamente. Las imágenes se guardan para la farmacia.',
+  'reason.insurance.company':
+    'La farmacia necesita el nombre de la aseguradora para facturar la vacuna. Aparece en la tarjeta del seguro.',
+  'reason.insurance.planName':
+    'El nombre del plan aparece en la tarjeta del seguro y se usa para la facturación.',
+  'reason.insurance.bin': 'El BIN dirige la reclamación de la farmacia al procesador correcto.',
+  'reason.insurance.pcn': 'El PCN es un segundo número de enrutamiento que se usa junto con el BIN.',
+  'reason.insurance.memberId': 'El número de miembro identifica al paciente en el plan de seguro.',
+  'reason.insurance.groupId': 'El número de grupo identifica al empleador o al plan de grupo.',
+  'reason.helper.name':
+    'Su nombre deja constancia de quién completó este formulario y quién firma en nombre del paciente.',
+  'reason.helper.relationship':
+    'Su relación indica en calidad de qué firma usted por el paciente, por ejemplo como madre o padre, hija o hijo adulto, o representante legal.',
+  'reason.helper.phone':
+    'Los recordatorios y los avisos del día de la clínica se envían a la persona que gestiona la cita.',
+  'reason.helper.email':
+    'La confirmación y el recordatorio se envían a la persona que gestiona la cita.',
+  'reason.extras.address':
+    'Opcional. La farmacia guarda la dirección del paciente para futuras entregas de medicamentos. No es necesaria para la facturación.',
+  'reason.extras.phone':
+    'Opcional. El número de teléfono se usa para enviar un recordatorio antes de la clínica.',
+  'reason.extras.email':
+    'Opcional. El correo electrónico se usa para enviar la confirmación y un recordatorio, y para ayudar a verificar el seguro.',
+  'reason.extras.health': 'El farmacéutico necesita estas respuestas antes de aplicar una vacuna.',
+  'reason.sign.signer':
+    'Deja constancia de si firmó el paciente o la persona que lo ayuda, junto con el nombre de quien firma.',
+  'reason.sign.signature': 'La firma es la constancia del consentimiento.',
+  'reason.sign.pharmacyConsent':
+    'Deja constancia del consentimiento para que la farmacia aplique la vacuna y facture a la aseguradora.',
+  'reason.sign.onecareConsent':
+    'Deja constancia de la aceptación de los términos de servicio y el aviso de privacidad de OneCare.',
+
+  // Por qué es importante
+  'vaccine.flu.why':
+    'La gripe puede acabar en una hospitalización, sobre todo en personas mayores y en personas con enfermedades crónicas. La vacuna se actualiza cada año.',
+  'vaccine.covid.why': 'Reduce el riesgo de COVID-19 grave. La vacuna se actualiza cada temporada.',
+  'vaccine.tdap.why':
+    'Protege contra el tétanos, la difteria y la tosferina. Un refuerzo mantiene la protección.',
+  'vaccine.shingles.why':
+    'El herpes zóster es un sarpullido doloroso que puede dejar un dolor en los nervios durante meses. El riesgo aumenta con la edad.',
+  'vaccine.pneumococcal.why':
+    'Protege contra una bacteria que causa neumonía, infección de la sangre y meningitis.',
+  'vaccine.rsv.why': 'El VRS puede causar una infección pulmonar grave en personas mayores.',
+  'vaccine.hepb.why':
+    'La hepatitis B es una infección del hígado que puede durar toda la vida y dañarlo.',
+  'vaccine.mmr.why':
+    'Protege contra el sarampión, las paperas y la rubéola. El sarampión se contagia con mucha facilidad.',
+  'vaccine.varicella.why': 'Protege contra la varicela y sus complicaciones.',
+  'vaccine.hpv.why': 'Previene infecciones que pueden causar varios tipos de cáncer más adelante.',
+  'vaccine.menacwy.why':
+    'Protege contra una infección poco frecuente pero de avance rápido que puede causar meningitis.',
+  'vaccine.dtap.why': 'La vacuna infantil contra la difteria, el tétanos y la tosferina.',
+  'vaccine.hib.why': 'Protege a los niños pequeños contra una bacteria que puede causar meningitis.',
+  'vaccine.rotavirus.why': 'Protege a los bebés contra la diarrea grave y la deshidratación.',
+  'vaccine.polio.why': 'Protege contra la polio, que puede causar parálisis.',
+  'vaccine.hepa.why':
+    'La hepatitis A es una infección del hígado que se transmite por alimentos o agua contaminados o por contacto cercano.',
+
+  'vaccine.flu.name': 'Influenza (gripe)',
+  'vaccine.flu.short': 'Gripe',
+  'vaccine.covid.name': 'COVID-19',
+  'vaccine.covid.short': 'COVID-19',
+  'vaccine.tdap.name': 'Tdap',
+  'vaccine.tdap.short': 'Tdap',
+  'vaccine.shingles.name': 'Culebrilla (herpes zóster)',
+  'vaccine.shingles.short': 'Culebrilla',
+  'vaccine.pneumococcal.name': 'Neumococo',
+  'vaccine.pneumococcal.short': 'Neumococo',
+  'vaccine.rsv.name': 'VRS',
+  'vaccine.rsv.short': 'VRS',
+  'vaccine.hepb.name': 'Hepatitis B',
+  'vaccine.hepb.short': 'Hepatitis B',
+  'vaccine.mmr.name': 'Triple vírica (MMR)',
+  'vaccine.mmr.short': 'MMR',
+  'vaccine.varicella.name': 'Varicela',
+  'vaccine.varicella.short': 'Varicela',
+  'vaccine.hpv.name': 'VPH',
+  'vaccine.hpv.short': 'VPH',
+  'vaccine.menacwy.name': 'Meningococo ACWY',
+  'vaccine.menacwy.short': 'Meningococo ACWY',
+  'vaccine.dtap.name': 'DTaP',
+  'vaccine.dtap.short': 'DTaP',
+  'vaccine.hib.name': 'Hib',
+  'vaccine.hib.short': 'Hib',
+  'vaccine.rotavirus.name': 'Rotavirus',
+  'vaccine.rotavirus.short': 'Rotavirus',
+  'vaccine.polio.name': 'Polio (IPV)',
+  'vaccine.polio.short': 'Polio',
+  'vaccine.hepa.name': 'Hepatitis A',
+  'vaccine.hepa.short': 'Hepatitis A',
+
+  // Preguntas de salud: traducción pendiente de revisión profesional.
+  'health.q1': review('¿Está enfermo hoy?'),
+  'health.q2': review(
+    '¿Tiene alergias a medicamentos, alimentos, huevos, levadura, algún componente de una vacuna o látex?',
+  ),
+  'health.q3': review('¿Alguna vez ha tenido una reacción grave después de recibir una vacuna?'),
+  'health.q4': review(
+    '¿Algún médico u otro profesional de la salud le ha advertido alguna vez sobre recibir ciertas vacunas o recibir vacunas fuera de un entorno médico?',
+  ),
+  'health.q5': review(
+    '¿Tiene un problema de salud crónico, como una enfermedad del corazón, de los pulmones, del hígado, asma, enfermedad de los riñones, enfermedad metabólica (p. ej., diabetes), anemia u otro trastorno de la sangre?',
+  ),
+  'health.q6': review(
+    '¿Tiene cáncer, leucemia, VIH/SIDA o algún otro problema del sistema inmunitario? ¿Le han diagnosticado artritis reumatoide, espondilitis anquilosante, enfermedad de Crohn, herpes o herpes labial?',
+  ),
+  'health.q7': review(
+    'En los últimos 3 meses, ¿ha tomado medicamentos que debilitan el sistema inmunitario, como cortisona, prednisona, otros esteroides o medicamentos contra el cáncer, o ha recibido radioterapia?',
+  ),
+  'health.q8': review(
+    '¿Ha tenido una convulsión o un problema del cerebro o de otra parte del sistema nervioso, o síndrome de Guillain-Barré?',
+  ),
+  'health.q9': review(
+    'Durante el último año, ¿ha recibido una transfusión de sangre o de productos sanguíneos, o le han administrado inmunoglobulina (gammaglobulina) o un medicamento antiviral (incluidos aciclovir, famciclovir, valaciclovir)?',
+  ),
+  'health.q10': review(
+    'Para mujeres: ¿Está embarazada o existe la posibilidad de que quede embarazada durante el próximo mes?',
+  ),
+  'health.q11': review(
+    '¿Ha recibido alguna vacuna o una prueba cutánea de tuberculosis en las últimas 4 semanas?',
+  ),
+  'health.q12': review('¿Tiene antecedentes de desmayos, en particular con las vacunas?'),
+  'health.q13': review(
+    'Para Tdap y Td de adultos: ¿Tiene un corte, una lesión, una punción o una herida abierta que le haya llevado a ponerse una vacuna contra el tétanos?',
+  ),
+  'health.q14': review(
+    '¿Alguna vez le han diagnosticado una afección cardíaca (miocarditis o pericarditis) o ha tenido síndrome inflamatorio multisistémico (MIS-A o MIS-C) después de una infección por el virus que causa la COVID-19?',
+  ),
+
+  'relationship.child': 'Hija o hijo',
+  'relationship.spouse': 'Cónyuge o pareja',
+  'relationship.parent': 'Madre o padre',
+  'relationship.guardian': 'Tutor o representante legal',
+  'relationship.other': 'Otra',
+
+  'section.patient': 'Paciente',
+  'section.helper': 'Sus datos',
+  'section.vaccines': 'Vacunas',
+  'section.insurance': 'Seguro y Medicare',
+  'section.extras': 'Ahorre tiempo en la clínica',
+  'section.sign': 'Revisar y firmar',
+  'summary.patient.todo': 'Nombre y fecha de nacimiento',
+  'summary.helper.todo': 'Porque usted inscribe a {name}',
+  'summary.helper.todoNoName': 'Porque usted inscribe a otra persona',
+  'summary.vaccines.todo': 'Elija las vacunas',
+  'summary.vaccines.notSure': 'Aún sin decidir. El farmacéutico lo revisará.',
+  'summary.vaccines.withProduct': '{vaccine} ({product})',
+  'summary.insurance.todo': 'Foto de la tarjeta, o escríbalo',
+  'summary.insurance.medicare': 'Medicare',
+  'summary.insurance.other': 'Seguro',
+  'summary.insurance.none': 'Sin seguro',
+  'summary.insurance.photosBoth': 'fotos del frente y del reverso añadidas',
+  'summary.insurance.photoOne': 'una foto añadida',
+  'summary.insurance.numberAdded': 'número añadido',
+  'summary.insurance.typed': 'escrito a mano',
+  'summary.extras.todo': 'Preguntas de salud, dirección, recordatorios',
+  'summary.extras.skipped': 'Omitido por ahora',
+  'summary.extras.health': 'Preguntas de salud respondidas',
+  'summary.extras.more': 'Más datos de {name} añadidos',
+  'summary.extras.address': 'Dirección añadida',
+  'summary.extras.reminders': 'Recordatorio añadido',
+  'summary.sign.todo': 'Revise y firme para terminar',
+  'summary.sign.done': 'Firmado por {name}',
+
+  'record.medicareEnding': 'Número de Medicare terminado en {ending}',
+  'clinic.dateAtTime': '{date}, {time}',
+  'clinic.kicker': 'Clínica de vacunación',
+  'demo.notice': 'Solo es una demostración. Todo lo que aparece aquí es inventado. Por favor, no escriba datos personales reales.',
+  'page.signup': 'Inscripción para vacunas',
+  'page.start': 'Inicio',
+  'page.done': 'Inscripción completa',
+  'page.title': '{page} · Inscripción para vacunas en {pharmacy}',
+  'done.forgotten': 'Ya no hay nada guardado en este teléfono.',
+  'clinic.where': '{pharmacy} · {address}',
+  'help.call': '¿Necesita ayuda? Llame a {pharmacy} al {phone}.',
+  'aside.signingUp': 'Inscribiendo a {name}',
+
+  'start.title': '¿Para quién es esta inscripción?',
+  'start.title#pass': 'Primero, ¿para quién es el pase?',
+  'start.titleAgain': 'O empiece una inscripción nueva. ¿Para quién es?',
+  'start.self': 'Para mí',
+  'start.self#pass': 'Para mí',
+  'start.selfSub': 'Soy quien va a recibir la vacuna',
+  'start.other': 'Para otra persona',
+  'start.other#pass': 'Para alguien a quien ayudo',
+  'start.otherSub': 'Mi madre o padre, un hijo o alguien a quien cuido',
+
+  'welcome.title': 'Bienvenido de nuevo',
+  'welcome.continue': 'Continuar la inscripción de {name}',
+  'welcome.continueSelf': 'Continuar su inscripción',
+  'welcome.stoppedAt': 'Se quedó en {section}',
+  'welcome.saved':
+    'Guardado en este teléfono desde la última vez. Los números de tarjeta y las firmas nunca se guardan.',
+  'welcome.forget': 'Borrar lo guardado en este teléfono',
+
+  'patient.lead': 'Escriba los datos tal como aparecen en la tarjeta del seguro o de Medicare.',
+  'patient.firstName': 'Nombre',
+  'patient.lastName': 'Apellido',
+  'patient.name': 'Nombre completo',
+  'patient.preferredName': 'Nombre preferido',
+  'patient.preferredPlaceholder': '¿Cómo debemos llamarle?',
+  'patient.preferredPlaceholder.self': '¿Cómo debemos llamarle?',
+  'patient.looking': 'Buscando un registro...',
+  'patient.notFound':
+    'Aún no tenemos a {name} en nuestros registros. No hay problema: crearemos su registro.',
+  'patient.notFound.self':
+    'Aún no le tenemos en nuestros registros. No hay problema: crearemos su registro.',
+  'patient.foundLead': 'Compruebe que sigue siendo correcto. Toque una línea con flecha para cambiarla.',
+  'patient.foundNote':
+    'Encontramos el registro de {name} en {pharmacy}. Algunas partes están ocultas por privacidad.',
+  'patient.foundNote.self':
+    'Encontramos su registro en {pharmacy}. Algunas partes están ocultas por privacidad.',
+  'patient.confirm': 'Sí, es correcto',
+  'patient.reject': 'No es {name}',
+  'patient.reject.self': 'No soy yo',
+  'patient.minorNote':
+    '{name} es menor de 18 años, así que una persona adulta debe hacer la inscripción. En el siguiente paso le pediremos sus datos.',
+  'patient.minorNote.self':
+    'Usted es menor de 18 años, así que una persona adulta debe hacer la inscripción. En el siguiente paso se pedirán los datos de esa persona.',
+  'patient.review.preferred': 'Nombre preferido (opcional)',
+  'patient.review.addName': 'Añadir un nombre',
+  'patient.review.address': 'Dirección',
+  'patient.review.phone': 'Teléfono',
+  'patient.review.insurance': 'Seguro',
+
+  'helper.lead': 'Porque usted inscribe a {name}.',
+  'helper.leadNoName': 'Porque usted inscribe a otra persona.',
+  'helper.firstName': 'Su nombre',
+  'helper.lastName': 'Su apellido',
+  'helper.name': 'Su nombre completo',
+  'helper.relationship': 'Su relación con {name}',
+  'helper.relationshipNoName': 'Su relación con el paciente',
+  'helper.relationshipChoose': 'Elija una opción',
+  'helper.relationshipOther': 'Describa su relación',
+  'helper.phone': 'Su número de celular',
+  'helper.email': 'Su correo electrónico',
+
+  'vaccines.lead':
+    'Toque una vacuna para añadirla. El farmacéutico confirmará en la clínica qué le conviene a {name}.',
+  'vaccines.lead.self':
+    'Toque una vacuna para añadirla. El farmacéutico confirmará en la clínica qué le conviene a usted.',
+  'vaccines.lastDose': 'Última dosis registrada: {date}',
+  'vaccines.noDose': 'No hay dosis registradas.',
+  'vaccines.whichProduct': '¿Qué vacuna de {vaccine}?',
+  'vaccines.sameAsLast': 'La misma que la última vez',
+  'vaccines.suggestedFromAge': 'Sugerida a partir de los {age} años',
+  'vaccines.otherOptions': 'Otras opciones ({count})',
+  'vaccines.noPreference': 'Sin preferencia',
+  'vaccines.askPharmacist': 'Prefiero preguntar al farmacéutico',
+  'vaccines.pickSameAsLast': '{product} · la misma que la última vez',
+  'vaccines.chosen': 'Elegido: {choice}',
+  'vaccines.hadWarning':
+    'Según nuestros registros, {name} recibió esta vacuna el {date}, así que quizá no necesite otra. Puede mantenerla y el farmacéutico lo confirmará.',
+  'vaccines.hadWarning.self':
+    'Según nuestros registros, usted recibió esta vacuna el {date}, así que quizá no necesite otra. Puede mantenerla y el farmacéutico lo confirmará.',
+  'vaccines.ageNote':
+    'Esta vacuna no suele ponerse a la edad de {name}. Puede mantenerla y el farmacéutico lo confirmará.',
+  'vaccines.ageNote.self':
+    'Esta vacuna no suele ponerse a su edad. Puede mantenerla y el farmacéutico lo confirmará.',
+  'vaccines.notSure': 'No sé qué necesita {name}',
+  'vaccines.notSure.self': 'No sé qué necesito',
+  'vaccines.notSureSub': 'El farmacéutico lo revisará en la clínica.',
+  'vaccines.source':
+    'Según el registro estatal de vacunación ({registry}) y los registros de {pharmacy}. Los registros pueden estar incompletos.',
+  'vaccines.aboutPlaceholder':
+    'Esta vacuna se aplica con una inyección en la clínica. Antes de aplicarla, el farmacéutico revisa el registro y confirma el producto y el momento adecuados.',
+  'vaccines.goodToKnowPlaceholder':
+    'Lleve una prenda con mangas fáciles de subir. Avise al farmacéutico si hoy no se siente bien o si alguna vez tuvo una reacción a una vacuna. Puede que le pidan esperar unos 15 minutos después de la inyección.',
+
+  'insurance.lead':
+    'Una foto de la tarjeta del seguro o de Medicare de {name} completa los datos.',
+  'insurance.lead.self': 'Una foto de su tarjeta del seguro o de Medicare completa los datos.',
+  'insurance.kind.legend': '¿Qué seguro tiene {name}?',
+  'insurance.kind.legend.self': '¿Qué seguro tiene usted?',
+  'insurance.kind.medicare': 'Medicare',
+  'insurance.kind.other': 'Otro seguro médico',
+  'insurance.kind.otherOnly': 'Seguro médico',
+  'insurance.kind.none': 'Sin seguro',
+  'insurance.noneNote':
+    'Puede inscribirse aunque no tenga seguro. En la clínica, el farmacéutico le dirá el costo antes de aplicar cualquier vacuna y puede orientarle sobre programas que ayudan a pagarla.',
+  'insurance.onFile': 'Registrado en {pharmacy}: número de Medicare terminado en {ending}.',
+  'insurance.takeFront': 'Tomar una foto del frente',
+  'insurance.takeBack': 'Tomar una foto del reverso',
+  'insurance.upload': 'Subir fotos que ya tengo',
+  'insurance.typeIn': 'Prefiero escribirlo',
+  'insurance.frontAdded': 'Frente de la tarjeta: foto añadida',
+  'insurance.backAdded': 'Reverso de la tarjeta: foto añadida',
+  'insurance.retake': 'Repetir',
+  'insurance.photoAlt.front': 'Foto del frente de la tarjeta',
+  'insurance.photoAlt.back': 'Foto del reverso de la tarjeta',
+  'insurance.reading': 'Leyendo la tarjeta...',
+  'insurance.readFailed': 'No pudimos leer la tarjeta. Por favor, escriba los datos.',
+  'insurance.check': 'La foto completó los datos de abajo. Por favor, revíselos.',
+  'insurance.fieldCheck': 'Por favor, revise este dato. La foto no se leía bien aquí.',
+  'insurance.company': 'Aseguradora',
+  'insurance.planName': 'Nombre del plan',
+  'insurance.bin': 'BIN',
+  'insurance.pcn': 'PCN',
+  'insurance.memberId': 'Número de miembro',
+  'insurance.groupId': 'Número de grupo',
+  'insurance.forMedicare': 'Para Medicare',
+  'insurance.medicareNumber': 'Número de Medicare',
+  'insurance.medicareHint': 'La foto puede completarlo.',
+  'insurance.ssn4': 'Últimos 4 dígitos del número de Seguro Social',
+  'insurance.secondCard': 'Añadir una segunda tarjeta',
+  'insurance.secondCardNote':
+    'Si hay una segunda tarjeta de seguro, llévela a la clínica y la farmacia la añadirá allí. Añadirla aquí todavía no está disponible.',
+  'insurance.drop.front': 'Frente de la tarjeta',
+  'insurance.drop.back': 'Reverso de la tarjeta',
+  'insurance.drop.hint': 'Arrastre una foto aquí, o',
+  'insurance.drop.choose': 'Elegir un archivo',
+  'insurance.drop.chooseAnother': 'Elegir otro archivo',
+  'insurance.drop.added': 'Foto añadida',
+  'insurance.webcam.title': 'Use la cámara de esta computadora',
+  'insurance.webcam.hint': 'Acerque la tarjeta a la cámara, un lado cada vez.',
+
+  'camera.front': 'Frente de la tarjeta',
+  'camera.back': 'Reverso de la tarjeta',
+  'camera.text': 'Mantenga la tarjeta dentro del marco y luego pulse el botón.',
+  'camera.view': 'Vista de la cámara en vivo con un marco para la tarjeta',
+  'camera.cancel': 'Cancelar',
+  'camera.take': 'Tomar la foto',
+  'camera.uploadInstead': 'Subir un archivo',
+  'camera.reviewText': 'Compruebe que se puede leer cada línea.',
+  'camera.photoAlt': 'La foto que acaba de tomar',
+  'camera.use': 'Usar esta foto',
+  'camera.retake': 'Repetir',
+
+  'extras.lead': 'Opcional. Todo lo que añada ahora es un formulario menos en la clínica.',
+  'extras.continue': 'Continuar a la firma',
+  'extras.skip': 'Omitir por ahora',
+  'extras.health.title': 'Preguntas de salud',
+  'extras.health.default': '{total} respuestas, todas en No',
+  'extras.health.savedNone': 'Guardado: las {total} son No',
+  'extras.health.savedSome': 'Guardado: {count} de {total} ya no son No',
+  'extras.health.lead':
+    'Las {total} empiezan en No. Cambie las que deban ser Sí o No sé, respondiendo por {name}.',
+  'extras.health.lead.self': 'Las {total} empiezan en No. Cambie las que deban ser Sí o No sé.',
+  'extras.health.save': 'Guardar respuestas',
+  'extras.more.title': 'Más sobre {name}',
+  'extras.more.title.self': 'Más sobre usted',
+  'extras.more.todo': 'Sexo · Raza',
+  'extras.more.sex': 'Sexo',
+  'extras.more.race': 'Raza',
+  'extras.more.choose': 'Elija una opción',
+  'sex.female': 'Femenino',
+  'sex.male': 'Masculino',
+  'sex.another': 'Otro',
+  'sex.preferNot': 'Prefiero no decirlo',
+  'race.aian': 'Indígena americano o nativo de Alaska',
+  'race.asian': 'Asiático',
+  'race.black': 'Negro o afroamericano',
+  'race.nhpi': 'Nativo de Hawái u otra isla del Pacífico',
+  'race.white': 'Blanco',
+  'race.other': 'Otra',
+  'race.preferNot': 'Prefiero no decirlo',
+  'extras.address.title': 'Dirección de {name}',
+  'extras.address.title.self': 'Su dirección',
+  'extras.address.todo': 'Añadir una dirección',
+  'extras.address.search': 'Empiece a escribir la dirección',
+  'extras.address.byHand': 'Escribir la dirección a mano',
+  'extras.address.noMatch': 'No encontramos esa dirección. Puede escribirla a mano.',
+  'extras.address.useSearch': 'Buscar la dirección',
+  'extras.address.street': 'Calle y número',
+  'extras.address.unit': 'Apartamento o unidad',
+  'extras.address.city': 'Ciudad',
+  'extras.address.state': 'Estado',
+  'extras.address.zip': 'Código postal',
+  'extras.address.onFile': 'Registrada en {pharmacy}: {address}',
+  'extras.address.chosen': 'Dirección',
+  'extras.address.change': 'Usar otra dirección',
+  'extras.reminders.title': 'Recordatorios',
+  'extras.reminders.todo': 'Teléfono o correo para un recordatorio',
+  'extras.reminders.phone': 'Teléfono para un recordatorio por mensaje',
+  'extras.reminders.email': 'Correo electrónico para un recordatorio',
+
+  'sign.submit': 'Inscribirme',
+  'sign.submit#pass': 'Firmar y obtener mi pase',
+  'sign.submitNamed': 'Inscribir a {name}',
+  'sign.submitNamed#pass': 'Firmar y obtener el pase de {name}',
+  'sign.lead': 'Toque cualquier línea de arriba para cambiarla.',
+  'sign.lead#pass': 'Toque cualquier línea de abajo para cambiarla.',
+  'review.you': 'Usted',
+  'sign.who': '¿Quién firma?',
+  'sign.thePatient': 'El paciente',
+  'sign.signingFor': 'Firma por {name}',
+  'sign.signerName': 'Nombre completo de quien firma',
+  'sign.signerNameHint': 'Cámbielo si no es correcto.',
+  'sign.signature': 'Firma',
+  'sign.how': 'Cómo firmar',
+  'sign.type': 'Escribir',
+  'sign.draw': 'Dibujar',
+  'sign.typedHint': 'El nombre escrito arriba pasa a ser la firma.',
+  'sign.drawArea': 'Dibuje su firma aquí',
+  'sign.drawn': 'Su firma dibujada',
+  'sign.clear': 'Borrar',
+  'sign.agreeTyped': review('Acepto que este nombre escrito es mi firma electrónica.'),
+  'sign.pharmacyConsent': 'Consentimiento de la farmacia',
+  'sign.pharmacyConsentText': review(
+    'Firmo en nombre de {patient}. Doy mi consentimiento para que {pharmacy} vacune a {name}. He revisado la información sobre las vacunas, entiendo los riesgos y los beneficios, y autorizo la facturación a la aseguradora de {name}. El consentimiento puede retirarse en cualquier momento.',
+  ),
+  'sign.pharmacyConsentText.self': review(
+    'Doy mi consentimiento para que {pharmacy} me vacune. He revisado la información sobre las vacunas, entiendo los riesgos y los beneficios, y autorizo la facturación a mi aseguradora. El consentimiento puede retirarse en cualquier momento.',
+  ),
+  'sign.readInfo': 'Leer la información sobre las vacunas',
+  'sign.infoPlaceholder':
+    'Para cada vacuna, la farmacia entrega una Hoja de información sobre la vacuna: un resumen breve de contra qué protege, quién debe recibirla y sus posibles efectos secundarios. Puede pedírsela al farmacéutico y leerla antes de la inyección.',
+  'sign.onecareConsent': 'Consentimiento de OneCare',
+  'sign.onecareConsentText': review(
+    'He leído y acepto los términos de servicio y el aviso de privacidad de OneCare.',
+  ),
+  'sign.readTerms': 'Leer los términos de servicio y el aviso de privacidad de OneCare',
+  'sign.termsPlaceholder':
+    '[Términos de servicio y aviso de privacidad: por suministrar por OneCare.]',
+  'sign.pressAgain': review(
+    'Hay casillas de arriba sin marcar. Pulse «{button}» otra vez para aceptarlas todas y terminar.',
+  ),
+
+  'done.title': '{name} ya tiene su inscripción',
+  'done.title#pass': 'El pase de {name} está listo.',
+  'done.title.self': 'Ya tiene su inscripción',
+  'done.title.self#pass': 'Su pase está listo.',
+  'done.vaccinesRequested': 'Vacunas solicitadas',
+  'done.vaccinesRequested#pass': 'Vacunas solicitadas',
+  'done.pharmacistConfirms': 'el farmacéutico lo confirmará',
+  'done.vaccinesNotSure': 'El farmacéutico revisará las vacunas en la clínica.',
+  'done.confirmation': 'Número de confirmación: {id}',
+  'done.calendar': 'Añadir al calendario',
+  'done.calendarTitle': 'Clínica de vacunación en {pharmacy}',
+  'done.calendarVaccines': 'Vacunas solicitadas para {name}: {vaccines}',
+  'done.another': 'Inscribir a otra persona',
+  'done.another#pass': 'Obtener un pase para otra persona',
+  'done.stillOpen': 'Aún pendiente',
+  'done.stillOpenText': 'Opcional. Añádalo ahora, o el farmacéutico se lo preguntará en la clínica.',
+  'done.open.health': 'Responder las {total} preguntas',
+  'done.open.moreLabel': 'Más sobre {name}',
+  'done.open.more': 'Añadir sexo y raza',
+  'done.open.reminders': 'Añadir un teléfono o un correo',
+  'done.saved':
+    'Guardado en este teléfono para que la próxima vez sea más rápido. Los números de tarjeta y las firmas nunca se guardan.',
+
+  'error.firstName': 'Escriba el nombre.',
+  'error.lastName': 'Escriba el apellido.',
+  'error.dobMissing': 'Escriba la fecha de nacimiento: mes, día y año.',
+  'error.dobInvalid': 'Escriba una fecha real, como 04 12 1954.',
+  'error.dobFuture': 'La fecha de nacimiento no puede estar en el futuro.',
+  'error.lookupFailed': 'No pudimos buscar un registro. Por favor, inténtelo de nuevo.',
+  'error.helperFirstName': 'Escriba su nombre.',
+  'error.helperLastName': 'Escriba su apellido.',
+  'error.relationship': 'Elija su relación.',
+  'error.relationshipOther': 'Describa su relación.',
+  'error.phone': 'Escriba un número de teléfono de 10 dígitos, como (313) 555-0142.',
+  'error.email': 'Escriba el correo completo, como nombre@ejemplo.com.',
+  'error.vaccines': 'Elija al menos una vacuna, o marque «No sé qué necesita».',
+  'error.insuranceKind': 'Elija una de las opciones.',
+  'error.medicareNumber': 'Escriba el número de Medicare de 11 caracteres, como 1EG4-TE5-MK73.',
+  'error.ssn4': 'Escriba los últimos 4 dígitos.',
+  'error.insuranceCard':
+    'Añada fotos del frente y del reverso de la tarjeta, o escriba los seis datos.',
+  'error.signerName': 'Escriba el nombre completo de quien firma.',
+  'error.signature': 'Dibuje su firma en el recuadro, o cambie a Escribir.',
+  'error.signMissing': 'Antes de firmar, complete: {sections}.',
+  'error.submit': 'No pudimos enviar la inscripción. Por favor, inténtelo de nuevo.',
+
+  'b.start.title': 'Reservemos un lugar en la clínica de vacunación.',
+  'b.start.passNote': 'Cuatro sellos y el pase es suyo.',
+  'b.heading.patient': '¿Quién va a recibir la vacuna?',
+  'b.heading.patientFound': '¿Es {name}?',
+  'b.heading.patientFound.self': '¿Es usted?',
+  'b.heading.helper': '¿Y usted quién es?',
+  'b.heading.vaccines': '¿Qué vacunas van en el pase de {name}?',
+  'b.heading.vaccinesNoName': '¿Qué vacunas van en el pase?',
+  'b.heading.insurance': 'Tome una foto de la tarjeta. Nosotros escribimos.',
+  'b.heading.extras': '¿Quiere ahorrarse el papeleo?',
+  'b.heading.health': 'Preguntas de salud sobre {name}',
+  'b.heading.health.self': 'Sus preguntas de salud',
+  'b.heading.sign': 'Último sello: revise y firme.',
+  'b.pass.shots': 'Vacunas en el pase',
 };

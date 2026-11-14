@@ -1,5 +1,6 @@
 import { useId, type ReactNode } from 'react';
 import { cx } from './cx';
+import { useSubHeading } from './subHeading';
 import { Icon } from './Icon';
 import { WhyWeAsk } from './WhyWeAsk';
 
@@ -14,6 +15,8 @@ interface SubPanelProps {
   drill?: boolean;
   /** Content of the "Why we ask" row under the title. */
   why?: ReactNode;
+  /** Id of the head button, so focus can return to it. */
+  headId?: string;
   children?: ReactNode;
 }
 
@@ -25,16 +28,19 @@ export function SubPanel({
   onToggle,
   drill = false,
   why,
+  headId,
   children,
 }: SubPanelProps) {
   const bodyId = useId();
+  const Heading = useSubHeading();
   const expanded = open && !drill;
   return (
     <section className={cx('oc-panel', 'oc-panel--sub', expanded && 'is-open')}>
-      <h3 className="oc-panel__h">
+      <Heading className="oc-panel__h">
         <button
           type="button"
           className="oc-panel__head"
+          id={headId}
           aria-expanded={drill ? undefined : expanded}
           aria-controls={expanded ? bodyId : undefined}
           onClick={onToggle}
@@ -47,7 +53,7 @@ export function SubPanel({
             <Icon name={drill ? 'chevronRight' : expanded ? 'chevronUp' : 'chevronDown'} />
           </span>
         </button>
-      </h3>
+      </Heading>
       {expanded ? (
         <div className="oc-panel__body" id={bodyId}>
           <WhyWeAsk>{why}</WhyWeAsk>

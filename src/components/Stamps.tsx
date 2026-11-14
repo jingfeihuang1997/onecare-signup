@@ -16,10 +16,12 @@ interface StampsProps {
   items: readonly StampItem[];
   /** Inside the pass: no card around the row. */
   flat?: boolean;
+  /** Hidden from 900px, where the pass in the side column shows the stamps. */
+  narrowOnly?: boolean;
 }
 
 /** Option B: one stamp per step. Done stamps are filled and tilted. */
-export function Stamps({ items, flat = false }: StampsProps) {
+export function Stamps({ items, flat = false, narrowOnly = false }: StampsProps) {
   const { t } = useI18n();
   const currentIndex = items.findIndex((item) => item.state === 'current');
   const allDone = items.length > 0 && items.every((item) => item.state === 'done');
@@ -28,7 +30,10 @@ export function Stamps({ items, flat = false }: StampsProps) {
     : t('stamps.progress', { current: Math.max(currentIndex, 0) + 1, total: items.length });
 
   return (
-    <nav className={cx('oc-stamps', flat && 'oc-stamps--flat')} aria-label={label}>
+    <nav
+      className={cx('oc-stamps', flat && 'oc-stamps--flat', narrowOnly && 'oc-narrow-only')}
+      aria-label={label}
+    >
       {items.map((item) => (
         <div
           key={item.id}

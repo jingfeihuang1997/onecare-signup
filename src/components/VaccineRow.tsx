@@ -17,6 +17,8 @@ interface VaccineRowProps {
   pick?: ReactNode;
   /** Reminder shown while selected, for example the "had it" warning with Keep it / Remove. */
   reminder?: ReactNode;
+  /** Id of the checkbox, so focus can return to it. */
+  checkboxId?: string;
   /** Details shown when expanded: last dose, product choice, the three folded rows. */
   children?: ReactNode;
 }
@@ -36,6 +38,7 @@ export function VaccineRow({
   onExpandedChange,
   pick,
   reminder,
+  checkboxId,
   children,
 }: VaccineRowProps) {
   const { t } = useI18n();
@@ -46,6 +49,7 @@ export function VaccineRow({
         <label className="oc-vax__label">
           <input
             type="checkbox"
+            id={checkboxId}
             checked={selected}
             onChange={(event) => onSelectedChange(event.target.checked)}
           />

@@ -28,6 +28,11 @@ export default tseslint.config(
     },
   },
   {
+    // Test helpers mix a small component with plain functions; fast refresh does not matter there.
+    files: ['src/test/**/*.{ts,tsx}', '**/*.test.{ts,tsx}'],
+    rules: { 'react-refresh/only-export-components': 'off' },
+  },
+  {
     files: ['scripts/**/*.mjs', '*.config.{js,ts}'],
     extends: [js.configs.recommended],
     languageOptions: { globals: globals.node },

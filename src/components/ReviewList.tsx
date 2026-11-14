@@ -5,8 +5,8 @@ export interface ReviewRow {
   id: string;
   label: string;
   value: ReactNode;
-  /** Opens this value for editing. */
-  onClick: () => void;
+  /** Opens this value for editing. Leave out for a value that cannot be changed here. */
+  onClick?: () => void;
 }
 
 interface ReviewListProps {
@@ -17,17 +17,26 @@ interface ReviewListProps {
 export function ReviewList({ rows }: ReviewListProps) {
   return (
     <div className="oc-review">
-      {rows.map((row) => (
-        <button type="button" className="oc-review__row" key={row.id} onClick={row.onClick}>
+      {rows.map((row) => {
+        const text = (
           <span className="oc-review__text">
             <span className="oc-review__label">{row.label}</span>
             <span className="oc-review__value">{row.value}</span>
           </span>
-          <span className="oc-chev">
-            <Icon name="chevronRight" />
-          </span>
-        </button>
-      ))}
+        );
+        return row.onClick ? (
+          <button type="button" className="oc-review__row" key={row.id} onClick={row.onClick}>
+            {text}
+            <span className="oc-chev">
+              <Icon name="chevronRight" />
+            </span>
+          </button>
+        ) : (
+          <div className="oc-review__row" key={row.id}>
+            {text}
+          </div>
+        );
+      })}
     </div>
   );
 }
