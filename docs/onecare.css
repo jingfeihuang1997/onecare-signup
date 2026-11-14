@@ -1,0 +1,224 @@
+/* OneCare vaccine sign-up: shared design system v1
+   One set of components, two themes.
+   .oc--a  "Calm and clear"  (one page, sections fold)
+   .oc--b  "Clinic pass"     (one thing at a time, stamps)
+   Every screen root carries: class="oc oc--a|oc--b" plus oc--phone or oc--page. */
+
+.oc{
+  --ground:#F6F5F1; --surface:#FFFFFF; --ink:#17201B; --muted:#4C5751;
+  --soft:#E1E4DD; --edge:#7C867F; --edge-w:1.5px; --panel-border:1px solid #D6D8D2;
+  --primary:#1E5B45; --primary-deep:#123B2C; --on-primary:#FFFFFF;
+  --tint:#E3EFE8; --selected:#F5FAF7;
+  --accent:#1E5B45; --on-accent:#FFFFFF;
+  --warn:#FFF1CC; --warn-edge:#A87B12;
+  --radius:14px; --radius-btn:29px; --lift:none;
+  --font:'Inter',system-ui,-apple-system,'Segoe UI',sans-serif;
+  --script:'Caveat','Segoe Script','Brush Script MT',cursive;
+  display:flex; flex-direction:column;
+  font-family:var(--font); font-size:18px; line-height:1.45;
+  color:var(--ink); background:var(--ground);
+}
+.oc--b{
+  --ground:#F1F6EE; --ink:#14261D; --muted:#42544A;
+  --soft:#C6D5C9; --edge:#14261D; --edge-w:2px; --panel-border:2px solid #14261D;
+  --tint:#DCEBDD; --selected:#FFF7DC;
+  --accent:#F7C548; --on-accent:#14261D;
+  --radius:18px; --radius-btn:18px; --lift:0 4px 0 #14261D;
+  --font:'Lexend',system-ui,-apple-system,'Segoe UI',sans-serif;
+}
+.oc--phone{width:390px}
+.oc--page{min-height:100vh}
+.oc button,.oc input,.oc select{font-family:inherit;color:inherit}
+.oc button{cursor:pointer}
+
+/* Header */
+.oc-header{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:10px 16px;padding:12px 16px;background:var(--surface);border-bottom:var(--panel-border)}
+.oc--b .oc-header{background:transparent;border-bottom:0}
+.oc--page .oc-header{padding:14px clamp(16px,4vw,48px)}
+.oc-brand{display:flex;flex-direction:column;gap:3px}
+.oc-brand__name{font-size:19px;font-weight:700;line-height:1.2}
+.oc-brand__by{display:flex;align-items:center;gap:6px;font-size:14px;color:var(--muted)}
+.oc-brand__by strong{color:var(--ink)}
+.oc-logo{display:inline-flex;align-items:center;justify-content:center;height:22px;padding:0 6px;border:1.5px dashed var(--edge);border-radius:5px;font-size:11px;font-weight:700;letter-spacing:.5px}
+.oc-tools{display:flex;gap:6px}
+.oc-iconbtn{display:inline-flex;align-items:center;justify-content:center;min-width:46px;height:46px;padding:0 10px;border:var(--edge-w) solid var(--edge);border-radius:12px;background:var(--surface);font-size:16px;font-weight:700}
+.oc-iconbtn--lg{font-size:20px}
+
+/* Progress: bar (A) and stamps (B) */
+.oc-progress{position:sticky;top:0;z-index:2;display:flex;align-items:center;justify-content:space-between;gap:14px;padding:10px 16px;background:var(--surface);border-bottom:var(--panel-border)}
+.oc-progress__main{display:flex;flex-direction:column;gap:7px;flex:1 1 auto}
+.oc-progress__segs{display:flex;gap:4px}
+.oc-progress__seg{flex:1 1 0;height:7px;border-radius:4px;background:#C9CDC6}
+.oc-progress__seg.is-done{background:var(--primary)}
+.oc-progress__label{font-size:16px;font-weight:600}
+.oc-stamps{display:flex;justify-content:space-between;gap:4px;margin:0 16px;padding:12px 8px;background:var(--surface);border:var(--panel-border);border-radius:var(--radius)}
+.oc-stamps--flat{margin:0;padding:0;border:0}
+.oc-stamp{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1 1 0;font-size:14px;font-weight:600;text-align:center}
+.oc-stamp__mark{display:flex;align-items:center;justify-content:center;width:44px;height:44px;border-radius:22px;border:2px dashed #5E6F64;font-size:18px;font-weight:700;color:var(--muted)}
+.oc-stamp.is-done .oc-stamp__mark{border:2px solid var(--ink);background:var(--accent);color:var(--on-accent);transform:rotate(-7deg)}
+.oc-stamp.is-current{color:var(--primary);font-weight:700}
+.oc-stamp.is-current .oc-stamp__mark{border:3px solid var(--primary);color:var(--primary)}
+
+/* Page body and type */
+.oc-main{display:flex;flex-direction:column;gap:14px;padding:16px 16px 32px}
+.oc-h1{margin:0;font-size:27px;line-height:1.2;font-weight:700}
+.oc-h2{margin:0;font-size:21px;line-height:1.25;font-weight:700}
+.oc-lead{margin:0;font-size:18px;color:var(--muted)}
+.oc-small{margin:0;font-size:15px;color:var(--muted)}
+.oc-link{color:var(--primary);font-weight:700}
+.oc-tag{display:inline-block;margin-left:6px;padding:1px 8px;border-radius:8px;background:var(--tint);font-size:14px;font-weight:700;color:var(--primary-deep);vertical-align:middle}
+.oc-stack{display:flex;flex-direction:column;gap:16px}
+.oc-stack--tight{gap:8px}
+
+/* Card (clinic summary, grouped content) */
+.oc-card{display:flex;flex-direction:column;gap:6px;padding:16px;background:var(--surface);border:var(--panel-border);border-radius:var(--radius)}
+.oc-card--gap{gap:12px}
+.oc-card__kicker{font-size:15px;font-weight:600;color:var(--muted)}
+.oc-card__title{font-size:21px;font-weight:700;line-height:1.25}
+
+/* Panel: folded = review summary, tap the whole head to open and edit */
+.oc-panel{background:var(--surface);border:var(--panel-border);border-radius:var(--radius)}
+.oc-panel.is-open{border:2px solid var(--primary);box-shadow:var(--lift)}
+.oc--b .oc-panel.is-open{border-color:var(--ink)}
+.oc-panel__head{display:flex;align-items:center;gap:12px;width:100%;min-height:68px;padding:12px 14px;border:0;border-radius:var(--radius);background:transparent;color:var(--ink);text-align:left;text-decoration:none}
+.oc-panel__mark{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:30px;height:30px;border-radius:15px;border:2px solid var(--edge);font-size:15px;font-weight:700}
+.oc-panel.is-done .oc-panel__mark,.oc-panel__mark.is-done{border-color:var(--primary);background:var(--primary);color:#FFFFFF}
+.oc-panel.is-open .oc-panel__mark,.oc-panel__mark.is-current{border-color:var(--primary);color:var(--primary)}
+.oc-panel__text{display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-width:0}
+.oc-panel__title{font-size:18px;font-weight:700;line-height:1.25}
+.oc-panel__sum{font-size:16px;line-height:1.35;color:var(--muted)}
+.oc-panel__body{display:flex;flex-direction:column;gap:16px;padding:4px 14px 18px}
+.oc-panel--sub{border:var(--edge-w) solid var(--edge);border-radius:12px}
+.oc-panel--sub.is-open{box-shadow:none}
+.oc-chev{display:flex;flex:0 0 auto;color:var(--muted)}
+
+/* Fields */
+.oc-field{display:flex;flex-direction:column;gap:6px;min-width:0}
+.oc-fieldset{display:flex;flex-direction:column;gap:8px;margin:0;padding:0;border:0;min-width:0}
+.oc-label{padding:0;font-size:17px;font-weight:600}
+.oc-optional{font-weight:400;color:var(--muted)}
+.oc-input{width:100%;height:56px;padding:0 14px;border:var(--edge-w) solid var(--edge);border-radius:12px;background:var(--surface);font-size:19px}
+.oc-input--short{width:150px;letter-spacing:4px}
+.oc-hint{font-size:15px;color:var(--muted)}
+.oc-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(240px,100%),1fr));gap:16px}
+.oc-dob{display:flex;gap:10px}
+.oc-dob .oc-field{flex:1 1 0}
+
+/* Buttons */
+.oc-btn{display:flex;align-items:center;justify-content:center;gap:10px;min-height:58px;padding:8px 22px;border:var(--edge-w) solid var(--primary);border-radius:var(--radius-btn);background:var(--surface);font-size:19px;font-weight:700;color:var(--primary);text-decoration:none;text-align:center}
+.oc--b .oc-btn{border-color:var(--ink);color:var(--ink)}
+.oc-btn--primary,.oc--b .oc-btn--primary{background:var(--primary);color:var(--on-primary);box-shadow:var(--lift)}
+.oc-btn--small{min-height:46px;padding:0 14px;font-size:16px}
+.oc-btn--grow{flex:1 1 0}
+.oc-btn--link,.oc--b .oc-btn--link{justify-content:flex-start;min-height:48px;padding:0;border:0;border-radius:0;background:transparent;box-shadow:none;font-size:17px;color:var(--primary);text-decoration:underline;text-align:left}
+.oc-actions{display:flex;gap:12px}
+
+/* Choice tile (radio, checkbox, or navigation) */
+.oc-choice{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:10px 14px;border:var(--edge-w) solid var(--edge);border-radius:12px;background:var(--surface);font-size:18px;color:var(--ink);text-align:left;text-decoration:none}
+.oc-choice.is-selected{border:2px solid var(--primary);background:var(--selected);box-shadow:var(--lift)}
+.oc--b .oc-choice.is-selected{border-color:var(--ink)}
+.oc-choice input,.oc-vax__head input{flex:0 0 auto;width:24px;height:24px;margin:0;accent-color:var(--primary)}
+.oc-choice__text{display:flex;flex-direction:column;gap:2px;flex:1 1 auto;min-width:0}
+.oc-choice__title{font-weight:700}
+.oc-choice__sub{font-size:15px;color:var(--muted)}
+.oc-choice--top{align-items:flex-start}
+.oc-choice--big{min-height:86px;padding:14px 16px}
+.oc--b .oc-choice--big{box-shadow:var(--lift)}
+.oc-choice--big .oc-choice__title{font-size:21px}
+.oc-choice--big .oc-choice__sub{font-size:16px}
+
+/* Status chip */
+.oc-chip{display:inline-flex;align-items:center;flex:0 0 auto;padding:4px 10px;border-radius:8px;background:#E9EBE6;font-size:15px;font-weight:700;color:#2E3631;white-space:nowrap}
+.oc-chip--due{background:var(--tint);color:var(--primary-deep)}
+.oc-chip--had{background:var(--warn);color:#4A3300}
+.oc--b .oc-chip{border:2px solid var(--ink)}
+
+/* Disclosure row: every "Why we ask" and "Why it matters" starts folded */
+.oc-disc{display:flex;align-items:center;justify-content:space-between;gap:10px;width:100%;min-height:48px;padding:0;border:0;border-top:1px solid var(--soft);background:transparent;font-size:17px;font-weight:700;color:var(--primary);text-align:left}
+.oc-disc--plain{border-top:0}
+
+/* Vaccine list */
+.oc-vaxlist{display:flex;flex-direction:column;gap:8px}
+.oc-vax{border:var(--edge-w) solid var(--edge);border-radius:12px;background:var(--surface)}
+.oc-vax.is-selected{border:2px solid var(--primary);background:var(--selected)}
+.oc--b .oc-vax.is-selected{border-color:var(--ink);box-shadow:var(--lift)}
+.oc-vax__head{display:flex;align-items:center;gap:12px;min-height:62px;padding:8px 12px;font-size:19px;font-weight:700}
+.oc-vax__name{flex:1 1 auto;min-width:0}
+.oc-vax__body{display:flex;flex-direction:column;gap:12px;padding:0 12px 12px}
+.oc-vax__pick{margin:-8px 0 0;padding:0 12px 12px 48px;font-size:16px;color:var(--muted)}
+
+/* Notice */
+.oc-note{margin:0;padding:12px 14px;border-radius:12px;background:var(--tint);font-size:16px}
+.oc-note--warn{background:var(--warn);border:1.5px solid var(--warn-edge)}
+
+/* Review rows: values readable without opening; tap a row to change it */
+.oc-review{display:flex;flex-direction:column;border:var(--edge-w) solid var(--edge);border-radius:12px;background:var(--surface);overflow:hidden}
+.oc-review__row{display:flex;align-items:center;gap:10px;width:100%;min-height:62px;padding:8px 12px;border:0;border-top:1px solid var(--soft);background:transparent;text-align:left}
+.oc-review__row:first-child{border-top:0}
+.oc-review__text{display:flex;flex-direction:column;gap:1px;flex:1 1 auto;min-width:0}
+.oc-review__label{font-size:15px;color:var(--muted)}
+.oc-review__value{font-size:18px;font-weight:600}
+
+/* Segmented control: language, Yes / No / Not sure, Type / Draw */
+.oc-seg{display:flex;gap:8px}
+.oc-seg__opt{flex:1 1 0;min-height:50px;padding:4px 8px;border:var(--edge-w) solid var(--edge);border-radius:12px;background:var(--surface);font-size:17px;font-weight:600}
+.oc-seg__opt.is-on{border:2px solid var(--primary);background:var(--tint);font-weight:700;color:var(--primary-deep)}
+.oc--b .oc-seg__opt.is-on{border-color:var(--ink);background:var(--accent);color:var(--on-accent)}
+
+/* Health question */
+.oc-q{display:flex;flex-direction:column;gap:10px;padding:14px;border:var(--edge-w) solid var(--edge);border-radius:12px;background:var(--surface)}
+.oc-q__text{margin:0;font-size:17px}
+
+/* Address suggestions */
+.oc-suggest{display:flex;flex-direction:column;border:var(--edge-w) solid var(--edge);border-radius:12px;background:var(--surface);overflow:hidden}
+.oc-suggest__opt{display:flex;flex-direction:column;justify-content:center;gap:2px;min-height:60px;padding:8px 14px;border:0;border-top:1px solid var(--soft);background:transparent;text-align:left}
+.oc-suggest__opt:first-child{border-top:0;background:var(--tint)}
+.oc-suggest__main{font-size:18px;font-weight:700}
+.oc-suggest__sub{font-size:15px;color:var(--muted)}
+
+/* Signature */
+.oc-sign{display:flex;align-items:center;justify-content:center;min-height:120px;padding:10px;border:var(--edge-w) solid var(--edge);border-radius:12px;background:var(--surface)}
+.oc-sign__typed{font-family:var(--script);font-size:46px;font-weight:600;line-height:1}
+
+/* Clinic pass (B) */
+.oc-pass{display:flex;flex-direction:column;background:var(--surface);border:2px solid var(--ink);border-radius:18px;box-shadow:0 5px 0 var(--ink)}
+.oc-pass__part{display:flex;flex-direction:column;gap:4px;padding:14px 16px;border-top:2px dashed var(--ink)}
+.oc-pass__part:first-child{border-top:0}
+.oc-pass__label{font-size:14px;font-weight:700;letter-spacing:1.5px;color:var(--primary)}
+.oc-pass__title{font-size:22px;font-weight:700;line-height:1.25}
+
+/* Success mark */
+.oc-done{display:flex;align-items:center;gap:14px}
+.oc-done__mark{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:52px;height:52px;border-radius:26px;background:var(--primary);color:#FFFFFF}
+
+/* Camera capture (full screen) */
+.oc-camera{position:relative;justify-content:space-between;width:390px;height:844px;background:#101512;color:#FFFFFF}
+.oc-camera__top{display:flex;flex-direction:column;gap:6px;padding:28px 20px 0;text-align:center}
+.oc-camera__title{margin:0;font-size:24px;font-weight:700}
+.oc-camera__text{margin:0;font-size:17px;color:#E3E8E4}
+.oc-camera__frame{display:flex;align-items:center;justify-content:center;align-self:center;width:334px;height:210px;padding:16px;border:3px dashed #FFFFFF;border-radius:16px;font-size:17px;color:#E3E8E4;text-align:center}
+.oc-camera__bar{display:flex;align-items:center;justify-content:space-between;padding:20px 20px 36px}
+.oc-camera__btn{min-width:96px;min-height:48px;padding:0;border:0;background:transparent;font-size:17px;font-weight:700;color:#FFFFFF;text-decoration:underline}
+.oc-shutter{display:block;width:78px;height:78px;border:5px solid #FFFFFF;border-radius:39px;background:var(--accent)}
+
+/* Bottom sheet */
+.oc-scrim{position:absolute;top:0;left:0;width:100%;height:100%;background:rgba(23,32,27,.6)}
+.oc-sheet{position:absolute;left:0;bottom:0;width:100%;display:flex;flex-direction:column;gap:6px;padding:10px 16px 24px;background:var(--surface);border-radius:22px 22px 0 0}
+.oc-sheet__grip{align-self:center;width:44px;height:5px;border-radius:3px;background:#C9CDC6}
+.oc-sheet__top{display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px}
+
+/* Section navigation (sheet rows and desktop side list) */
+.oc-nav{display:flex;flex-direction:column;gap:4px}
+.oc-nav__item{display:flex;align-items:center;gap:12px;min-height:56px;padding:6px 10px;border:2px solid transparent;border-radius:12px;font-size:18px;font-weight:600;color:var(--ink);text-decoration:none}
+.oc-nav__item.is-current{border-color:var(--primary);background:var(--tint);font-weight:700}
+.oc-nav__text{display:flex;flex-direction:column;gap:1px}
+.oc-nav__state{font-size:15px;font-weight:400;color:var(--muted)}
+
+/* Desktop layout: side column stacks above the content on a phone */
+.oc-layout{display:flex;flex-wrap:wrap;align-items:flex-start;gap:24px 40px;width:100%;max-width:1200px;margin:0 auto;padding:24px clamp(16px,4vw,48px) 48px}
+.oc-aside{flex:1 1 260px;display:flex;flex-direction:column;gap:14px}
+.oc-content{flex:999 1 560px;min-width:0;display:flex;flex-direction:column;gap:14px}
+.oc-drop{display:flex;flex-direction:column;align-items:flex-start;gap:10px;padding:16px;border:2px dashed var(--edge);border-radius:14px;background:var(--surface)}
+.oc-drop__title{font-size:18px;font-weight:700}
+.oc-qr{display:flex;align-items:center;justify-content:center;flex:0 0 auto;width:88px;height:88px;border:2px dashed var(--edge);border-radius:8px;font-size:13px;font-weight:700}
+.oc-rowflex{display:flex;align-items:center;gap:14px}
