@@ -2,7 +2,7 @@
 
 Everything in the build that is mocked, drafted or assumed, and who needs to confirm it. Add a row whenever something uncertain goes in; remove it when it is confirmed.
 
-Last updated: Nov 14, 2026 (after the review fixes and the Pages setup).
+Last updated: Nov 16, 2026 (after the second review: SPEC 10.1, items 13 to 19). A short version for OneCare is in `TO-BE-VERIFIED.xlsx`.
 
 ## 1. "Why we ask" wording
 
@@ -45,8 +45,31 @@ Notes on this table:
 
 ## 2. Rules and logic
 
+Changed on Nov 16, 2026. Where a row further down says something else, these rows win.
+
 | Item | What the build does | Who confirms |
 |---|---|---|
+| Products for every vaccine | **Draft by Claude from general knowledge, not checked against any source.** Every vaccine lists US brand names: flu 4, COVID-19 3, RSV 3 (Arexvy, Abrysvo, mResvia), Tdap 2 (Boostrix, Adacel), shingles 1 (Shingrix), pneumococcal 4 (Prevnar 20, Capvaxive, Vaxneuvance, Pneumovax 23), hepatitis B 3 (Heplisav-B, Engerix-B, Recombivax HB), hepatitis A 2 (Havrix, Vaqta), MMR 2 (M-M-R II, Priorix), varicella 1 (Varivax), polio 1 (IPOL), meningococcal ACWY 2 (MenQuadfi, Menveo), DTaP 2 (Daptacel, Infanrix), Hib 3 (ActHIB, PedvaxHIB, Hiberix), rotavirus 2 (RotaTeq, Rotarix), HPV 1 (Gardasil 9). The list is in `src/data/vaccines.ts`. | OneCare, clinical: which products does each clinic stock? Are any missing, withdrawn or renamed? |
+| Product details | **Draft by Claude, not checked.** One line under each product (maker, type, age range or number of doses), in `product.<id>.details` in the three dictionaries. Shown under "Product notes are a draft, not yet approved." Age ranges and dose counts in particular must be checked against the current package inserts and CDC schedules. | OneCare, clinical sign-off |
+| Product choice for children's vaccines | A product can be chosen for every vaccine, including DTaP, Hib and rotavirus, where the product normally follows the child's earlier doses. | Clinical: should the product be chosen by the patient at all for these? |
+| Sex is required | Required in the Patient section, with "Prefer not to say". Because it is never stored on the device, a refresh or "Continue your sign-up" shows Patient as not finished until it is chosen again. | OneCare: is it required? Privacy: may it be stored so it is not asked twice? |
+| Whose email | "Mine", then for a helper the patient, then the list of "Your relationship to [name]" (daughter or son, spouse or partner, parent, legal guardian or representative, other). | OneCare: which choices does the pharmacy need? |
+| Sex choices | Female, Male, Non-binary (X), Prefer not to say. "X" follows what US passports and many state IDs use; the list is still my choice. | OneCare: which values do the pharmacy system and the state registry accept? |
+| Stamps as buttons (B) | Any stamp opens its step, also one further ahead. Nothing can be sent until the earlier steps are finished: Sign lists what is missing. | Product owner |
+| Reminder colour | Yellow in A, light blue (`#DCE8FA`) in B. The blue is my choice. | Product owner |
+| OneCare logo | An SVG drawn by Claude from a small picture: four rounded tiles on a transparent background, the top right one turned 45 degrees (the angle is my reading of the picture), also used as the browser tab icon. It is not the official artwork. | OneCare: supply the real logo file |
+| Confirmation email | Required in the Patient section, with "Whose email is this?" (the patient's, a parent's or guardian's, the helper's, or someone else's). It is stored in device memory together with whose it is. The helper step no longer asks for an email. | OneCare: may a sign-up be sent without an email? Is "whose" needed by the pharmacy? |
+| Sex | Asked in the Patient section, optional, never stored on the device. The choice list is still a mock. | OneCare |
+| Names | The first letter of first name, last name, preferred name and the signer's name is made a capital. Only the first letter, so "de la Cruz" becomes "De la Cruz". | Product owner |
+| Insurance: "I'm not sure" | Completes the section like "No", with a note to bring any card to the clinic. The wording of the note is a draft by Claude. | OneCare, pharmacy billing |
+| Insurance: Medicare from 65 | Medicare can be chosen from age 65 on the clinic date. Under 65 the type is not asked and the "Other insurance" fields show. | OneCare: people under 65 with Medicare, people 65 and over without it |
+| Insurance: fields | Typed in: insurance company, plan name, BIN, PCN, member ID (all required), group ID (optional) and last 4 of SSN; or Medicare number and last 4 of SSN. A photo sign-up is complete with both photos and asks for no SSN digits. | Pharmacy billing: which are really needed? Is the last 4 of the SSN needed for other insurance? |
+| Insurance: what the photo read | Shown in one line ("We read this from the card: ...") with the way to correct it by hand. The mock reader always returns the same sample values, also for a Medicare card. | Whoever builds the real card reader |
+| Phone number | Optional, in the optional section, "in case the pharmacy needs to reach" the patient. Stored in device memory. | OneCare |
+| Reminders | Opt-in, by email, by text message, or both, to the email or phone given earlier or to a different one. The line "The sign-up confirmation is emailed whether or not you choose a reminder" is a draft. No real message is sent. | OneCare legal: does a text reminder need its own consent wording? |
+| Health questions status | "Not started" until opened and saved. Opened, all 14 start at No. Never saved: sent as "not answered". | OneCare, clinical |
+| Who signs | With one possible signer the question is left out and the name is filled in. A typed signature still needs its tick box. | OneCare legal |
+| Room under the last panel (wide screens) | Option A leaves empty space under the last panel on wide screens, so a short section near the end can still scroll up level with the side column. | Product owner |
 | Age rules per vaccine | **Mock**, in `src/data/ageRules.ts`: DTaP up to 6, Hib up to 4, Rotavirus under 1, HPV 9 to 45, Tdap from 7, Shingles from 50, RSV from 60, the rest at any age. Chosen only so the reference scenario works (DTaP, Hib, Rotavirus and HPV hidden at age 72) and every vaccine can be reached. Not clinical guidance. | OneCare (SPEC 5.3, 9) |
 | Rows outside the usual age | All vaccines are shown (SPEC 10.1, item 12). When a vaccine outside the mock age rules is ticked, the row shows a note that it is not usually given at that age and that the pharmacist will confirm. It never blocks. The wording is mine. | OneCare, clinical sign-off |
 | Adding a vaccine | Ticking the box adds the vaccine and opens its details; the chevron opens and folds them. One row is open at a time. | Product owner (SPEC 5.3 says select and expand; SPEC 10.1 item 6 says the chevron shows the details) |
@@ -118,7 +141,7 @@ Notes on this table:
 
 ## 4. Placeholders still showing
 
-`[Clinic address]`, `[pharmacy phone]`, the OneCare logo, "About this vaccine" and "Good to know before the shot" for every vaccine, and the purpose of Sex and Race.
+`[Clinic address]`, `[pharmacy phone]`, and the terms of service and privacy notice. The logo is a drawing, not the official file.
 
 ## 5. Accessibility
 

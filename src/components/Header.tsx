@@ -3,6 +3,7 @@ import { useTextSize } from '../app/textSize';
 import { LANGUAGES, useI18n } from '../i18n';
 import { cx } from './cx';
 import { Icon } from './Icon';
+import { Logo } from './Logo';
 
 interface HeaderProps {
   pharmacyName: string;
@@ -50,9 +51,7 @@ export function Header({ pharmacyName, showLanguage = true }: HeaderProps) {
         <span className="oc-brand__name">{pharmacyName}</span>
         <span className="oc-brand__by">
           {t('header.poweredBy')}
-          <span className="oc-logo" role="img" aria-label={t('header.logoAlt')}>
-            {t('header.logoPlaceholder')}
-          </span>
+          <Logo />
           <strong>{t('brand.name')}</strong>
         </span>
       </div>

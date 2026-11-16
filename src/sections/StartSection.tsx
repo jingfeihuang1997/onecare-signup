@@ -67,10 +67,10 @@ export function StartSection({ titleSize, onOpen }: StartSectionProps) {
     dispatch({ type: 'start/choose', forWhom });
     // Helper details are kept on this device, so a returning helper does not retype them.
     if (forWhom === 'other' && saved.helper && state.draft.helper.firstName.trim() === '') {
-      const { firstName, lastName, relationship, relationshipOther, phone, email } = saved.helper;
+      const { firstName, lastName, relationship, relationshipOther, phone } = saved.helper;
       dispatch({
         type: 'helper/update',
-        patch: { firstName, lastName, relationship, relationshipOther, phone, email },
+        patch: { firstName, lastName, relationship, relationshipOther, phone },
       });
     }
     onOpen('patient');

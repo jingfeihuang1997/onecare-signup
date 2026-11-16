@@ -74,7 +74,6 @@ export const SEED_HELPER: Helper = {
   relationship: 'child',
   relationshipOther: '',
   phone: '(313) 555-0142',
-  email: 'ana.lopez@example.com',
 };
 
 /** The second seed patient: the pharmacy has no record of him (SPEC section 8). */

@@ -79,8 +79,17 @@ function stampItems(state: SignupState, config: AppConfig, position: Position, t
   });
 }
 
+/** Where a stamp leads: its first step that is not done yet, else its first step. */
+function stampTarget(state: SignupState, config: AppConfig, id: string): SectionId | null {
+  const present = sectionList(state);
+  const sections = (STAMPS.find((stamp) => stamp.id === id)?.sections ?? []).filter((section) =>
+    present.includes(section),
+  );
+  return sections.find((section) => !sectionDone(state, section, config)) ?? sections[0] ?? null;
+}
+
 /** The pass as it fills in: who it is for, when, the stamps, and the shots picked so far. */
-function PassCard({ position }: { position: Position }) {
+function PassCard({ position, onSelect }: { position: Position; onSelect?: (id: string) => void }) {
   const { t } = useI18n();
   const { state, config } = useSignup();
   const clinic = useClinicText();
@@ -103,7 +112,7 @@ function PassCard({ position }: { position: Position }) {
         </PassPart>
       ) : (
         <PassPart>
-          <Stamps flat items={stampItems(state, config, position, t)} />
+          <Stamps flat items={stampItems(state, config, position, t)} onSelect={onSelect} />
         </PassPart>
       )}
       {position === 'done' ? (
@@ -233,15 +242,21 @@ function StepB() {
         : t('b.heading.vaccinesNoName')
       : t(`b.heading.${step}`);
 
+  // Any stamp opens its step, finished or not; an unfinished one stays marked as not done.
+  const goToStamp = (id: string) => {
+    const target = stampTarget(state, config, id);
+    if (target) navigate(stepPath(target));
+  };
+
   return (
     <>
       <TopBar>
         <Header pharmacyName={clinic?.pharmacy ?? ''} />
-        <Stamps narrowOnly items={stampItems(state, config, step, t)} />
+        <Stamps narrowOnly items={stampItems(state, config, step, t)} onSelect={goToStamp} />
       </TopBar>
       <div className="oc-layout">
         <aside className="oc-aside">
-          <PassCard position={step} />
+          <PassCard position={step} onSelect={goToStamp} />
           {clinic ? <p className="oc-small">{clinic.help}</p> : null}
         </aside>
         <main className="oc-content">

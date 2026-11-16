@@ -130,12 +130,29 @@ describe('Vaccines: product choice', () => {
     expect(within(rowOf('Influenza (flu)')).getByText("I'd like to ask the pharmacist")).toHaveClass('oc-vax__pick');
   });
 
-  it('a vaccine with no product list has no product choice', async () => {
+  it('every vaccine lists its products, each with a line of details, and none is preselected', async () => {
     await toVaccines();
     await tick('Hepatitis B');
     const row = within(rowOf('Hepatitis B'));
     expect(row.getByText('No dose on record.')).toBeInTheDocument();
-    expect(row.queryByRole('radio')).not.toBeInTheDocument();
+    expect(row.getByText('Product notes are a draft, not yet approved.')).toBeInTheDocument();
+    const first = row.getByRole('radio', { name: /^Heplisav-B \(Dynavax\)/ });
+    expect(first).not.toBeChecked();
+    expect(first.closest('label')).toHaveTextContent('Two doses, one month apart. For adults 18 and over.');
+    await userEvent.click(row.getByRole('button', { name: 'Other options (4)' }));
+    expect(row.getAllByRole('radio').map((radio) => radio.closest('label')?.textContent)).toEqual([
+      'Heplisav-B (Dynavax)Two doses, one month apart. For adults 18 and over.',
+      'Engerix-B (GSK)Three doses over six months.',
+      'Recombivax HB (Merck)Three doses over six months.',
+      'No preference',
+      "I'd like to ask the pharmacist",
+    ]);
+
+    // A vaccine with one product still offers the two fixed choices.
+    await tick('Shingles (Zoster)');
+    const shingles = within(rowOf('Shingles (Zoster)'));
+    expect(shingles.getByRole('radio', { name: /^Shingrix \(GSK\)/ })).toBeInTheDocument();
+    expect(shingles.getByRole('button', { name: 'Other options (2)' })).toBeInTheDocument();
   });
 
   it('is hidden entirely when the clinic turns product choice off', async () => {
@@ -166,7 +183,7 @@ describe('Vaccines: reminders and details', () => {
       rsv.getByText(
         'Our records show Maria had this vaccine on Sep 20, 2024, so they may not need another one. You can keep it and the pharmacist will confirm.',
       ),
-    ).toHaveClass('oc-note--warn');
+    ).toHaveClass('oc-note');
 
     await userEvent.click(rsv.getByRole('button', { name: 'Keep it' }));
     expect(rsv.queryByText(/Our records show/)).not.toBeInTheDocument();

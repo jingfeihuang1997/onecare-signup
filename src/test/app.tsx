@@ -67,12 +67,22 @@ interface Person {
   dob: DateOfBirth;
 }
 
-export async function typePatient(person: Person) {
+export const TEST_EMAIL = 'test@example.com';
+
+/** Name and date of birth: what the record lookup needs. */
+export async function typeIdentity(person: Person) {
   const form = main();
   await userEvent.type(form.getByLabelText('First name'), person.firstName);
   await userEvent.type(form.getByLabelText('Last name'), person.lastName);
-  // Month and day move focus on by themselves, so the whole date is typed into Month.
-  await userEvent.type(form.getByLabelText('Month'), `${person.dob.month}${person.dob.day}${person.dob.year}`);
+  await userEvent.selectOptions(form.getByLabelText('Month'), person.dob.month);
+  // The day moves focus on by itself, so day and year are typed into Day.
+  await userEvent.type(form.getByLabelText('Day'), `${person.dob.day}${person.dob.year}`);
+}
+
+export async function typePatient(person: Person) {
+  await typeIdentity(person);
+  await userEvent.selectOptions(main().getByLabelText('Sex'), 'Prefer not to say');
+  await userEvent.type(main().getByLabelText('Email for the confirmation'), TEST_EMAIL);
 }
 
 /** Fills Patient with the seed patient who has no record, and continues. */
@@ -96,7 +106,6 @@ export async function typeHelper() {
   await userEvent.type(form.getByLabelText('Your last name'), SEED_HELPER.lastName);
   await userEvent.selectOptions(form.getByLabelText(/^Your relationship/), 'Daughter or son');
   await userEvent.type(form.getByLabelText('Your mobile number'), SEED_HELPER.phone);
-  await userEvent.type(form.getByLabelText('Your email'), SEED_HELPER.email);
 }
 
 export async function passHelper() {
@@ -112,9 +121,9 @@ export async function passSign(label: string | RegExp) {
   await press(label);
 }
 
-/** Gets past Insurance with "No insurance". */
+/** Gets past Insurance by answering "No" to "Do you have health insurance?". */
 export async function passInsurance() {
-  await userEvent.click(main().getByRole('radio', { name: 'No insurance' }));
+  await userEvent.click(main().getByRole('radio', { name: 'No' }));
   await press('Continue');
 }
 

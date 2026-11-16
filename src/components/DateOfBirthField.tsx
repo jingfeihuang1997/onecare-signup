@@ -1,4 +1,4 @@
-import { useId, useRef, type ReactNode } from 'react';
+import { useId, useMemo, useRef, type ReactNode } from 'react';
 import { useI18n, type StringKey } from '../i18n';
 import type { DateOfBirth } from '../types';
 import { cx } from './cx';
@@ -12,14 +12,14 @@ interface DateOfBirthFieldProps {
   /** Replaces the default "Date of birth" legend. */
   legend?: string;
   error?: ReactNode;
-  /** Id of the group. The month input gets `${id}-month`, so focus can be sent to it. */
+  /** Id of the group. The month list gets `${id}-month`, so focus can be sent to it. */
   id?: string;
-  /** Called when focus leaves the whole group, not when it moves between its inputs. */
+  /** Called when focus leaves the whole group, not when it moves between its controls. */
   onBlur?: () => void;
 }
 
 interface Part {
-  key: keyof DateOfBirthValue;
+  key: 'day' | 'year';
   label: StringKey;
   placeholder: StringKey;
   autoComplete: string;
@@ -27,21 +27,33 @@ interface Part {
 }
 
 const PARTS: readonly Part[] = [
-  { key: 'month', label: 'dob.month', placeholder: 'dob.monthPlaceholder', autoComplete: 'bday-month', maxLength: 2 },
   { key: 'day', label: 'dob.day', placeholder: 'dob.dayPlaceholder', autoComplete: 'bday-day', maxLength: 2 },
   { key: 'year', label: 'dob.year', placeholder: 'dob.yearPlaceholder', autoComplete: 'bday-year', maxLength: 4 },
 ];
 
+const MONTHS = Array.from({ length: 12 }, (_, index) => String(index + 1).padStart(2, '0'));
+
+/** "4" and "04" are the same month; anything else is no month. */
+function monthValue(month: string): string {
+  const number = Number(month);
+  return Number.isInteger(number) && number >= 1 && number <= 12 ? String(number).padStart(2, '0') : '';
+}
+
 /**
- * Date of birth as three numeric inputs: month, day, year (SPEC 5.2). When month or day
- * is complete, focus moves on to the next input.
+ * Date of birth (SPEC 5.2 and 10.1, item 13): a list of month names, then day and year as
+ * numeric inputs. When the day is complete, focus moves on to the year.
  */
 export function DateOfBirthField({ value, onChange, legend, error, id, onBlur }: DateOfBirthFieldProps) {
-  const { t } = useI18n();
+  const { t, language } = useI18n();
   const autoId = useId();
   const groupId = id ?? autoId;
   const errorId = `${groupId}-error`;
-  const inputs = useRef<Partial<Record<keyof DateOfBirthValue, HTMLInputElement | null>>>({});
+  const inputs = useRef<Partial<Record<Part['key'], HTMLInputElement | null>>>({});
+
+  const monthNames = useMemo(() => {
+    const format = new Intl.DateTimeFormat(language, { month: 'long', timeZone: 'UTC' });
+    return MONTHS.map((month, index) => ({ value: month, name: format.format(new Date(Date.UTC(2000, index, 1))) }));
+  }, [language]);
 
   return (
     <fieldset
@@ -54,6 +66,26 @@ export function DateOfBirthField({ value, onChange, legend, error, id, onBlur }:
     >
       <legend className="oc-label">{legend ?? t('dob.legend')}</legend>
       <div className="oc-dob">
+        <div className="oc-field oc-dob__month">
+          <label className="oc-hint" htmlFor={`${groupId}-month`}>
+            {t('dob.month')}
+          </label>
+          <select
+            className="oc-input"
+            id={`${groupId}-month`}
+            autoComplete="bday-month"
+            value={monthValue(value.month)}
+            aria-invalid={error ? true : undefined}
+            onChange={(event) => onChange({ ...value, month: event.target.value })}
+          >
+            <option value="">{t('dob.monthPlaceholder')}</option>
+            {monthNames.map((month) => (
+              <option key={month.value} value={month.value}>
+                {month.name}
+              </option>
+            ))}
+          </select>
+        </div>
         {PARTS.map((part, index) => (
           <div className="oc-field" key={part.key}>
             <label className="oc-hint" htmlFor={`${groupId}-${part.key}`}>
@@ -69,13 +101,13 @@ export function DateOfBirthField({ value, onChange, legend, error, id, onBlur }:
               inputMode="numeric"
               autoComplete={part.autoComplete}
               placeholder={t(part.placeholder)}
-              // Only the last input has a hard limit: the others pass extra digits on.
+              // Only the last input has a hard limit: the day passes extra digits on.
               maxLength={index === PARTS.length - 1 ? part.maxLength : undefined}
               value={value[part.key]}
               aria-invalid={error ? true : undefined}
               onChange={(event) => {
-                // Digits beyond this part spill into the next ones, so typing fast, pasting
-                // "04121954" or autofill all land in the right inputs.
+                // Digits beyond the day spill into the year, so typing fast or pasting
+                // "121954" lands in the right inputs.
                 let rest = event.target.value.replace(/\D/g, '');
                 const next = { ...value };
                 let last = index;

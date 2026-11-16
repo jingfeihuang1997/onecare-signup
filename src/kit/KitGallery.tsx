@@ -99,7 +99,7 @@ export function KitGallery({ themeName }: { themeName: string }) {
     { id: 's3', number: 3, label: 'Vaccines', state: 'current', stateLabel: t('nav.state.current') },
     { id: 's4', number: 4, label: 'Insurance and Medicare', state: 'todo', stateLabel: t('nav.state.todo') },
     { id: 's5', number: 5, label: 'Save time at the clinic', state: 'todo', stateLabel: t('nav.state.optional') },
-    { id: 's6', number: 6, label: 'Review and sign', state: 'todo', stateLabel: t('nav.state.todo') },
+    { id: 's6', number: 6, label: 'Consent and signature', state: 'todo', stateLabel: t('nav.state.todo') },
   ];
 
   const patientReasons = (
@@ -174,8 +174,8 @@ export function KitGallery({ themeName }: { themeName: string }) {
             sub="You stopped at Insurance and Medicare"
             onClick={() => undefined}
           />
-          <p className="oc-small">Saved on this phone from last time.</p>
-          <Button variant="link">Forget what is saved on this phone</Button>
+          <p className="oc-small">Saved on this device from last time.</p>
+          <Button variant="link">Forget what is saved on this device</Button>
         </Card>
       </Group>
 
@@ -357,7 +357,7 @@ export function KitGallery({ themeName }: { themeName: string }) {
         </Panel>
         <Panel
           number={6}
-          title="Review and sign"
+          title="Consent and signature"
           summary="Check, then sign to finish"
           open={openPanel === 6}
           onToggle={() => togglePanel(6)}

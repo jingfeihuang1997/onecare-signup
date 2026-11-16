@@ -130,7 +130,12 @@ export function signupReducer(state: SignupState, action: SignupAction): SignupS
         statuses: [],
         draft: {
           ...draft,
-          patient: empty.patient,
+          // The person filling in the form is the same, so their email stays.
+          patient: {
+            ...empty.patient,
+            email: draft.patient.email,
+            emailOwner: draft.patient.emailOwner,
+          },
           lookup: empty.lookup,
           vaccines: empty.vaccines,
           extras:
@@ -262,7 +267,7 @@ export function signupReducer(state: SignupState, action: SignupAction): SignupS
     }
 
     case 'draft/reset':
-      // "Forget what is saved on this phone": nothing is kept, the helper included.
+      // "Forget what is saved on this device": nothing is kept, the helper included.
       return { ...state, statuses: [], draft: createEmptyDraft(draft.clinicToken) };
   }
 }

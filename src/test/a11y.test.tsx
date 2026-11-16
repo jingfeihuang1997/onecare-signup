@@ -93,25 +93,32 @@ describe.each([
 
       await atPath(at('insurance'));
       await expectClean('Insurance, nothing chosen');
-      const kinds = main().getAllByRole('radio');
-      await userEvent.click(kinds[0] as HTMLElement);
-      if (!helperPath) await press('Type it in instead');
+      await userEvent.click(main().getByRole('radio', { name: 'Yes' }));
       await press('Add a second card');
       await press('Continue');
-      await expectClean('Insurance, with fields and errors');
+      await expectClean('Insurance, card photos with an error');
+      await press('Enter details manually');
+      // Maria is 72, so she is asked which type; Daniel is 38 and goes straight to the fields.
+      if (helperPath) await userEvent.click(main().getByRole('radio', { name: 'Medicare' }));
+      await press('Continue');
+      await expectClean('Insurance, typed in with errors');
       await passInsurance();
 
       await atPath(at('extras'));
       await expectClean('Save time at the clinic');
-      await userEvent.click(main().getByRole('button', { name: /^Health questions/ }));
+      await userEvent.click(main().getByRole('checkbox', { name: 'Remind me by email' }));
+      await userEvent.click(main().getByRole('checkbox', { name: 'Remind me by text message' }));
+      await expectClean('Save time at the clinic, with reminders');
+      await userEvent.click(main().getByRole('checkbox', { name: 'Remind me by text message' }));
+      await press('Answer health questions');
       await expectClean('Health questions');
       await press('Save answers');
       await press('Skip for now');
 
       await atPath(at('sign'));
-      await expectClean('Review and sign');
+      await expectClean('Consent and signature');
       await press(/^Sign/);
-      await expectClean('Review and sign, after the first press');
+      await expectClean('Consent and signature, after the first press');
       await passSign(/^Sign/);
       await atPath(`${option}/done`);
       await expectClean('Done');
@@ -156,8 +163,16 @@ describe.each([
       await userEvent.tab();
       await userEvent.tab();
       expect(main().getByLabelText('Month')).toHaveFocus();
-      await userEvent.keyboard('09231988');
+      // A list of month names: the test picks from it, as arrow keys would.
+      await userEvent.selectOptions(main().getByLabelText('Month'), '09');
+      await userEvent.tab();
+      expect(main().getByLabelText('Day')).toHaveFocus();
+      await userEvent.keyboard('231988');
       await main().findByText(/on file yet/);
+      await tabTo(main().getByLabelText('Sex'));
+      await userEvent.selectOptions(main().getByLabelText('Sex'), 'Male');
+      await tabTo(main().getByLabelText('Email for the confirmation'));
+      await userEvent.keyboard('daniel@example.com');
       await tabTo(main().getByRole('button', { name: 'Continue' }));
       await userEvent.keyboard('{Enter}');
       await atPath(at('vaccines'));
@@ -173,7 +188,7 @@ describe.each([
       const kinds = main().getAllByRole('radio');
       await tabTo(kinds[0] as HTMLElement);
       await userEvent.keyboard('{ArrowDown}');
-      expect(main().getByRole('radio', { name: 'No insurance' })).toBeChecked();
+      expect(main().getByRole('radio', { name: 'No' })).toBeChecked();
       await tabTo(main().getByRole('button', { name: 'Continue' }));
       await userEvent.keyboard('{Enter}');
       await atPath(at('extras'));
@@ -233,15 +248,17 @@ describe('focus is never left on nothing', () => {
     await atPath('/a/signup/vaccines');
     await passVaccines();
     await atPath('/a/signup/insurance');
-    await userEvent.click(main().getByRole('radio', { name: 'Health insurance' }));
-    await press('Type it in instead');
-    await waitFor(() => expect(main().getByLabelText('Insurance company')).toHaveFocus());
+    await userEvent.click(main().getByRole('radio', { name: 'Yes' }));
+    await press('Enter details manually');
+    await waitFor(() => expect(main().getByRole('button', { name: 'Upload a card instead' })).toHaveFocus());
+    await press('Upload a card instead');
+    await waitFor(() => expect(main().getByRole('button', { name: 'Enter details manually' })).toHaveFocus());
     await passInsurance();
     await atPath('/a/signup/extras');
 
-    await userEvent.click(main().getByRole('button', { name: /^Health questions/ }));
+    await press('Answer health questions');
     await press('Save answers');
-    await waitFor(() => expect(main().getByRole('button', { name: /^Health questions/ })).toHaveFocus());
+    await waitFor(() => expect(main().getByRole('button', { name: 'Change answers' })).toHaveFocus());
 
     await press('Type the address by hand');
     await waitFor(() => expect(main().getByLabelText('Street address')).toHaveFocus());
@@ -256,12 +273,12 @@ describe('focus is never left on nothing', () => {
     expect(lost()).toBe(false);
   });
 
-  it('"Forget what is saved on this phone" moves focus on, on Start and on Done', async () => {
+  it('"Forget what is saved on this device" moves focus on, on Start and on Done', async () => {
     const first = await start('/a', 'Myself');
     await typePatient(SEED_NEW_PATIENT);
     first.unmount();
     renderAt('/a', first.storage);
-    await userEvent.click(await screen.findByRole('button', { name: 'Forget what is saved on this phone' }));
+    await userEvent.click(await screen.findByRole('button', { name: 'Forget what is saved on this device' }));
     await waitFor(() => expect(screen.getByRole('heading', { name: 'Who is this sign-up for?' })).toHaveFocus());
 
     await userEvent.click(screen.getByRole('button', { name: /^Myself/ }));
@@ -275,8 +292,8 @@ describe('focus is never left on nothing', () => {
     await atPath('/a/signup/sign');
     await passSign('Sign up');
     await atPath('/a/done');
-    await press('Forget what is saved on this phone');
-    await waitFor(() => expect(main().getByText('Nothing is saved on this phone now.')).toHaveFocus());
+    await press('Forget what is saved on this device');
+    await waitFor(() => expect(main().getByText('Nothing is saved on this device now.')).toHaveFocus());
     expect(path()).toBe('/a/done');
   }, LONG);
 });

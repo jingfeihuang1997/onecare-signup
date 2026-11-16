@@ -72,36 +72,46 @@ function vaccinesSummary(draft: SignupDraft, t: Translate): string {
 
 function insuranceSummary(draft: SignupDraft, t: Translate): string {
   const { insurance } = draft;
-  if (insurance.kind === null) return t('summary.insurance.todo');
-  if (insurance.kind === 'none') return t('summary.insurance.none');
+  if (insurance.has === null) return t('summary.insurance.todo');
+  if (insurance.has === 'no') return t('summary.insurance.none');
+  if (insurance.has === 'notSure') return t('summary.insurance.notSure');
 
-  const label =
-    insurance.kind === 'medicare'
-      ? t('summary.insurance.medicare')
-      : insurance.card.company.trim() || t('summary.insurance.other');
-  const photos = [insurance.frontImage, insurance.backImage].filter(Boolean).length;
-  const typed =
-    insurance.kind === 'medicare'
-      ? isFilled(insurance.medicareNumber) && t('summary.insurance.numberAdded')
-      : Object.values(insurance.card).some(isFilled) && t('summary.insurance.typed');
-  const detail =
-    photos === 2
-      ? t('summary.insurance.photosBoth')
-      : photos === 1
-        ? t('summary.insurance.photoOne')
-        : typed;
-  return [label, detail].filter(Boolean).join(t('common.separator'));
+  if (insurance.entry === 'photo') {
+    const photos = [insurance.frontImage, insurance.backImage].filter(Boolean).length;
+    const detail =
+      photos === 2
+        ? t('summary.insurance.photosBoth')
+        : photos === 1
+          ? t('summary.insurance.photoOne')
+          : '';
+    const label = insurance.card.company.trim() || t('summary.insurance.other');
+    return [label, detail].filter(Boolean).join(t('common.separator'));
+  }
+  if (insurance.kind === 'medicare') {
+    return [
+      t('summary.insurance.medicare'),
+      isFilled(insurance.medicareNumber) && t('summary.insurance.numberAdded'),
+    ]
+      .filter(Boolean)
+      .join(t('common.separator'));
+  }
+  return [
+    insurance.card.company.trim() || t('summary.insurance.other'),
+    (isFilled(insurance.card.company) || isFilled(insurance.card.memberId)) &&
+      t('summary.insurance.typed'),
+  ]
+    .filter(Boolean)
+    .join(t('common.separator'));
 }
 
 function extrasSummary(draft: SignupDraft, t: Translate): string {
   const { extras } = draft;
   const added = [
     extras.health.saved && t('summary.extras.health'),
-    (extras.sex !== null || extras.race !== null) &&
-      t('summary.extras.more', { name: patientCallName(draft) }),
     extras.address !== null && t('summary.extras.address'),
-    (isFilled(extras.reminderPhone) || isFilled(extras.reminderEmail)) &&
-      t('summary.extras.reminders'),
+    isFilled(extras.phone) && t('summary.extras.phone'),
+    (extras.remindByEmail || extras.remindByText) && t('summary.extras.reminders'),
+    extras.race !== null && t('summary.extras.more'),
   ].filter(Boolean);
   if (added.length > 0) return added.join(t('common.separator'));
   return extras.skipped ? t('summary.extras.skipped') : t('summary.extras.todo');

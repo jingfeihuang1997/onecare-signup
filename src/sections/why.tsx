@@ -1,5 +1,6 @@
 import type { ReactNode } from 'react';
 import type { SectionId } from '../types';
+import { ExtrasWhy } from './ExtrasSection';
 import { HelperWhy } from './HelperSection';
 import { InsuranceWhy } from './InsuranceSection';
 import { PatientWhy } from './PatientSection';
@@ -16,6 +17,8 @@ export function sectionWhy(section: SectionId): ReactNode {
       return <HelperWhy />;
     case 'insurance':
       return <InsuranceWhy />;
+    case 'extras':
+      return <ExtrasWhy />;
     default:
       return undefined;
   }

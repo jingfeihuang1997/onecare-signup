@@ -13,7 +13,7 @@ describe('section summaries', () => {
     expect(summary(state, 'patient')).toBe('Maria Lopez · Apr 12, 1954');
     expect(summary(state, 'helper')).toBe('Ana Lopez · Daughter or son · (313) 555-0142');
     expect(summary(state, 'vaccines')).toBe('Flu (Fluzone High-Dose) · COVID-19 (Spikevax) · RSV');
-    expect(summary(state, 'insurance')).toBe('Medicare · front and back photos added');
+    expect(summary(state, 'insurance')).toBe('Medicare · number added');
     expect(summary(state, 'extras')).toBe('Health questions answered · Address added');
     expect(summary(state, 'sign')).toBe('Check, then sign to finish');
   });
@@ -55,26 +55,33 @@ describe('section summaries', () => {
     expect(summary(state, 'vaccines')).toBe('Not sure yet. The pharmacist will go through it.');
   });
 
-  it('insurance: none, typed, and one photo', () => {
+  it('insurance: none, not sure, typed, and photos', () => {
     const state = referenceState();
     const blank = emptyState().draft.insurance;
 
-    state.draft.insurance = { ...blank, kind: 'none' };
+    state.draft.insurance = { ...blank, has: 'no' };
     expect(summary(state, 'insurance')).toBe('No insurance');
 
-    state.draft.insurance = { ...blank, kind: 'medicare', medicareNumber: '1EG4-TE5-MK73' };
+    state.draft.insurance = { ...blank, has: 'notSure' };
+    expect(summary(state, 'insurance')).toBe('Not sure. The pharmacist will check at the clinic.');
+
+    state.draft.insurance = { ...blank, has: 'yes', entry: 'manual', kind: 'medicare', medicareNumber: '1EG4-TE5-MK73' };
     expect(summary(state, 'insurance')).toBe('Medicare · number added');
 
     state.draft.insurance = {
       ...blank,
+      has: 'yes',
       kind: 'other',
       entry: 'manual',
       card: { ...blank.card, company: 'Sample Health Plan', memberId: 'SMP000123456' },
     };
     expect(summary(state, 'insurance')).toBe('Sample Health Plan · typed in');
 
-    state.draft.insurance = { ...blank, kind: 'other', frontImage: 'data:front' };
+    state.draft.insurance = { ...blank, has: 'yes', frontImage: 'data:front' };
     expect(summary(state, 'insurance')).toBe('Insurance · one photo added');
+    state.draft.insurance.backImage = 'data:back';
+    state.draft.insurance.card.company = 'Sample Health Plan';
+    expect(summary(state, 'insurance')).toBe('Sample Health Plan · front and back photos added');
   });
 
   it('extras: skipped, and everything added', () => {
@@ -84,11 +91,12 @@ describe('section summaries', () => {
 
     state.draft.extras = {
       ...referenceState().draft.extras,
-      sex: 'prefer-not-to-say',
-      reminderEmail: 'ana.lopez@example.com',
+      phone: '(313) 555-0199',
+      remindByEmail: true,
+      race: 'prefer-not',
     };
     expect(summary(state, 'extras')).toBe(
-      'Health questions answered · More about Maria added · Address added · Reminder added',
+      'Health questions answered · Address added · Phone added · Reminder added · Race added',
     );
   });
 

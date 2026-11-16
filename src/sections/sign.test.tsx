@@ -16,10 +16,11 @@ import {
   path,
   press,
   start,
+  typePatient,
 } from '../test/app';
 import type { SignupDraft } from '../types';
 
-// Review and sign, and Done (SPEC 5.7, 5.8 and 10.1 item 9).
+// Consent and signature, and Done (SPEC 5.7, 5.8 and 10.1 item 9).
 
 interface Route {
   option: '/a' | '/b';
@@ -73,7 +74,7 @@ function spySubmit() {
   return { sent, overrides: { submitSignup } };
 }
 
-describe('Review and sign: the review', () => {
+describe('Consent and signature: the review', () => {
   it('A: the folded panels above are the review; there is no separate list', async () => {
     await toSign({ option: '/a', patient: 'maria' });
     expect(main().getByText('Tap any line above to change it.')).toBeInTheDocument();
@@ -103,7 +104,7 @@ describe('Review and sign: the review', () => {
   });
 });
 
-describe('Review and sign: who signs, and the signature', () => {
+describe('Consent and signature: who signs, and the signature', () => {
   it('the helper signs by default; the name is prefilled and can be changed', async () => {
     await toSign({ option: '/a', patient: 'maria' });
     expect(main().getByRole('radio', { name: /^Ana Lopez/ })).toBeChecked();
@@ -117,12 +118,39 @@ describe('Review and sign: who signs, and the signature', () => {
     expect(main().getByRole('img', { name: 'Typed signature preview: Maria Lopez Sr' })).toBeInTheDocument();
   });
 
-  it('signing up yourself: you are the signer, and the consent says "I"', async () => {
+  it('signing up yourself: no "Who is signing?", and your name and signature are filled in', async () => {
     await toSign({ option: '/a', patient: 'daniel' });
-    expect(main().getAllByRole('radio')).toHaveLength(1);
-    expect(main().getByRole('radio', { name: /^Daniel Brooks/ })).toBeChecked();
+    expect(main().queryByText('Who is signing?')).not.toBeInTheDocument();
+    expect(main().queryByRole('radio')).not.toBeInTheDocument();
+    expect(main().getByLabelText("Signer's full name")).toHaveValue('Daniel Brooks');
+    expect(main().getByRole('img', { name: 'Typed signature preview: Daniel Brooks' })).toBeInTheDocument();
+    // The name can still be changed, and then it stays as typed.
+    await userEvent.type(main().getByLabelText("Signer's full name"), ' Jr');
+    expect(main().getByRole('img', { name: 'Typed signature preview: Daniel Brooks Jr' })).toBeInTheDocument();
     expect(main().getByText(/^I consent to being vaccinated by Cedar Lane Pharmacy/)).toBeInTheDocument();
     expect(main().getByRole('button', { name: 'Sign up' })).toBeInTheDocument();
+  });
+
+  it('a helper signing for a child is still asked "Who is signing?", with one choice', async () => {
+    await start('/a', 'Someone else');
+    await typePatient({ firstName: 'Leo', lastName: 'Brooks', dob: { month: '06', day: '01', year: '2015' } });
+    await main().findByText(/on file yet/);
+    await press('Continue');
+    await atPath('/a/signup/helper');
+    await passHelper();
+    await atPath('/a/signup/vaccines');
+    await passVaccines();
+    await atPath('/a/signup/insurance');
+    await passInsurance();
+    await atPath('/a/signup/extras');
+    await press('Skip for now');
+    await atPath('/a/signup/sign');
+
+    const who = within(main().getByRole('group', { name: 'Who is signing?' }));
+    // A patient under 18 cannot sign, so the helper is the only choice.
+    expect(who.getAllByRole('radio')).toHaveLength(1);
+    expect(who.getByRole('radio', { name: /^Ana Lopez/ })).toBeChecked();
+    expect(main().getByLabelText("Signer's full name")).toHaveValue('Ana Lopez');
   });
 
   it('nothing is ticked to begin with', async () => {
@@ -140,7 +168,7 @@ describe('Review and sign: who signs, and the signature', () => {
   });
 });
 
-describe('Review and sign: submitting', () => {
+describe('Consent and signature: submitting', () => {
   it('typed: sends the sign-up with the signature record once everything is ticked', async () => {
     const { sent, overrides } = spySubmit();
     await toSign({ option: '/a', patient: 'maria', overrides });
@@ -257,7 +285,7 @@ describe('Review and sign: submitting', () => {
     await passPatientFound();
     await atPath('/a/signup/helper');
     await userEvent.click(screen.getByRole('button', { name: 'Sections' }));
-    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /^Review and sign/ }));
+    await userEvent.click(within(screen.getByRole('dialog')).getByRole('button', { name: /^Consent and signature/ }));
     await atPath('/a/signup/sign');
     await passSign(/^Sign up/);
     expect(main().getByText('Before signing, finish: Your details · Vaccines · Insurance and Medicare.')).toBeInTheDocument();
@@ -307,8 +335,8 @@ describe('Done', () => {
     const open = within(main().getByRole('heading', { name: 'Still open' }).closest('.oc-card') as HTMLElement);
     expect(open.getAllByRole('button').map((row) => row.textContent)).toEqual([
       'Health questionsAnswer the 14 questions',
-      'More about MariaAdd sex and race',
-      'RemindersAdd a phone number or email',
+      'RemindersChoose a reminder',
+      'RaceAdd race',
     ]);
   });
 
@@ -318,7 +346,7 @@ describe('Done', () => {
     await atPath('/a/done');
     await press(/^Reminders/);
     await atPath('/a/signup/extras');
-    await userEvent.type(main().getByLabelText('Email for a reminder'), 'maria@example.com');
+    await userEvent.click(main().getByRole('checkbox', { name: 'Remind me by email' }));
     await press('Continue to sign');
     await atPath('/a/done');
     expect(main().queryByRole('button', { name: /^Reminders/ })).not.toBeInTheDocument();
@@ -391,7 +419,6 @@ describe('Done', () => {
     expect(main().getByLabelText('Your first name')).toHaveValue('Ana');
     expect(main().getByLabelText('Your last name')).toHaveValue('Lopez');
     expect(main().getByLabelText('Your mobile number')).toHaveValue('(313) 555-0142');
-    expect(main().getByLabelText('Your email')).toHaveValue('ana.lopez@example.com');
     expect(main().getByLabelText('Your relationship to Daniel')).toHaveValue('child');
   });
 
@@ -400,16 +427,16 @@ describe('Done', () => {
     await passSign('Sign up Maria');
     await atPath('/a/done');
     expect(
-      main().getByText('Saved on this phone so next time is faster. Card numbers and signatures are never saved.'),
+      main().getByText('Saved on this device so next time is faster. Card numbers and signatures are never saved.'),
     ).toBeInTheDocument();
     const stored = view.storage.getItem(STORAGE_KEY) ?? '';
     expect(stored).toContain('"submitted":true');
     expect(stored).not.toContain('signature');
     expect(stored).not.toContain('signerName');
 
-    await press('Forget what is saved on this phone');
+    await press('Forget what is saved on this device');
     expect(view.storage.getItem(STORAGE_KEY)).toBeNull();
-    expect(main().queryByText(/Saved on this phone so next time is faster/)).not.toBeInTheDocument();
+    expect(main().queryByText(/Saved on this device so next time is faster/)).not.toBeInTheDocument();
   });
 
   it('cannot be opened before the sign-up was sent', async () => {

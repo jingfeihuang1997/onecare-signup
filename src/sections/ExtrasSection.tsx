@@ -4,31 +4,41 @@ import {
   Actions,
   AddressSuggest,
   Button,
+  Choice,
   Field,
   Note,
   Question,
   ReasonList,
   ReviewList,
   SelectField,
-  SubPanel,
   useSubHeading,
 } from '../components';
-import { RACE_OPTIONS, SEX_OPTIONS } from '../data/demographics';
+import { RACE_OPTIONS } from '../data/demographics';
 import { HEALTH_QUESTION_KEYS } from '../data/healthQuestions';
 import { useI18n } from '../i18n';
 import { useServices } from '../services';
-import { isEmail, isFilled, isUsPhone, patientCallName, useSignup } from '../state';
-import type { AddressSuggestion, EnteredAddress, HealthAnswer } from '../types';
+import {
+  isEmail,
+  isFilled,
+  isUsPhone,
+  knownPhone,
+  patientCallName,
+  reminderTargets,
+  useSignup,
+} from '../state';
+import type { AddressSuggestion, EnteredAddress, Extras, HealthAnswer } from '../types';
 import { focusSoon } from './focusSoon';
 import { SectionActions } from './SectionActions';
 import { ShellActionsContext } from './shellActions';
 import { useValidation } from './useValidation';
 
-type SubPanelId = 'more' | 'address' | 'reminders';
-
 const TOTAL = HEALTH_QUESTION_KEYS.length;
 const MIN_QUERY = 3;
-const IDS = { phone: 'extras-reminder-phone', email: 'extras-reminder-email' } as const;
+const IDS = {
+  phone: 'extras-phone',
+  reminderEmail: 'extras-reminder-email',
+  reminderPhone: 'extras-reminder-phone',
+} as const;
 const HEALTH_HEAD = 'extras-health';
 const ADDRESS_SEARCH = 'extras-address-search';
 const ADDRESS_STREET = 'extras-address-street';
@@ -263,29 +273,57 @@ function HomeAddress() {
 
 // --- The section ---------------------------------------------------------------
 
+/** "Why we ask" for Save time at the clinic. */
+export function ExtrasWhy() {
+  const { t } = useI18n();
+  return (
+    <ReasonList
+      draft
+      items={[
+        { field: t('extras.health.title'), reason: t('reason.extras.health') },
+        { field: t('patient.review.address'), reason: t('reason.extras.address') },
+        { field: t('extras.phone'), reason: t('reason.extras.phone') },
+        { field: t('extras.reminders.title'), reason: t('reason.extras.reminders') },
+        { field: t('extras.race'), reason: t('reason.patient.race') },
+      ]}
+    />
+  );
+}
+
 /**
- * Save time at the clinic (SPEC 5.6 and 10.1): optional, before signing. Three sub-panels
- * that start open, plus the health questions, which open as their own view. "Continue to sign" and "Skip
- * for now" have the same size.
+ * Save time at the clinic (SPEC 5.6 and 10.1, item 16): optional, before signing. Everything
+ * is on view, nothing folded: the health questions in a highlighted block that opens their
+ * own view, then home address, phone number, reminders and race. "Continue to sign" and
+ * "Skip for now" have the same size.
  */
 export function ExtrasSection() {
   const { t } = useI18n();
   const { state, dispatch } = useSignup();
   const shell = useContext(ShellActionsContext);
+  const Heading = useSubHeading();
   const [search, setSearch] = useSearchParams();
-  // All three start open, so nothing optional is hidden behind a tap. Each folds on its own.
-  const [openSubs, setOpenSubs] = useState<ReadonlySet<SubPanelId>>(
-    () => new Set<SubPanelId>(['more', 'address', 'reminders']),
-  );
 
   const { draft } = state;
   const { extras } = draft;
   const self = draft.forWhom === 'self';
   const name = patientCallName(draft);
 
+  // What was given earlier is offered first; a different address or number can be typed.
+  const sameEmail = isEmail(draft.patient.email) ? draft.patient.email.trim() : '';
+  const samePhone = knownPhone(state);
+  const [pickedOtherEmail, setOtherEmail] = useState(false);
+  const [pickedOtherPhone, setOtherPhone] = useState(false);
+  // Something typed for the reminder always counts as "a different one".
+  const otherEmail = pickedOtherEmail || isFilled(extras.reminderEmail);
+  const otherPhone = pickedOtherPhone || isFilled(extras.reminderPhone);
+  const typeEmail = extras.remindByEmail && (otherEmail || !sameEmail);
+  const typePhone = extras.remindByText && (otherPhone || !samePhone);
+
+  const targets = reminderTargets(state);
   const errors = {
-    phone: !isFilled(extras.reminderPhone) || isUsPhone(extras.reminderPhone) ? null : t('error.phone'),
-    email: !isFilled(extras.reminderEmail) || isEmail(extras.reminderEmail) ? null : t('error.email'),
+    phone: !isFilled(extras.phone) || isUsPhone(extras.phone) ? null : t('error.phone'),
+    reminderEmail: targets.email === null || isEmail(targets.email) ? null : t('error.email'),
+    reminderPhone: targets.phone === null || isUsPhone(targets.phone) ? null : t('error.phone'),
   };
   const validation = useValidation(errors);
 
@@ -300,142 +338,165 @@ export function ExtrasSection() {
     );
   }
 
-  const toggle = (id: SubPanelId) =>
-    setOpenSubs((current) => {
-      const next = new Set(current);
-      if (!next.delete(id)) next.add(id);
-      return next;
-    });
-  const changed = extras.health.answers.filter((answer) => answer !== 'no').length;
-  const healthSummary = !extras.health.saved
-    ? t('extras.health.default', { total: TOTAL })
-    : changed === 0
-      ? t('extras.health.savedNone', { total: TOTAL })
-      : t('extras.health.savedSome', { count: changed, total: TOTAL });
+  const update = (patch: Partial<Omit<Extras, 'health' | 'skipped'>>) =>
+    dispatch({ type: 'extras/update', patch });
 
-  const label = (options: readonly { id: string; label: Parameters<typeof t>[0] }[], id: string | null) => {
-    const option = options.find((item) => item.id === id);
-    return option ? t(option.label) : null;
-  };
-  const moreSummary =
-    [label(SEX_OPTIONS, extras.sex), label(RACE_OPTIONS, extras.race)].filter(Boolean).join(t('common.separator')) ||
-    t('extras.more.todo');
-  const addressSummary = !extras.address
-    ? t('extras.address.todo')
-    : extras.address.kind === 'onFile'
-      ? extras.address.masked
-      : oneLine(extras.address);
-  const remindersSummary =
-    [extras.reminderPhone.trim(), extras.reminderEmail.trim()].filter(Boolean).join(t('common.separator')) ||
-    t('extras.reminders.todo');
+  const notNo = extras.health.answers.filter((answer) => answer !== 'no').length;
+  const healthStatus = !extras.health.saved
+    ? t('extras.health.notStarted')
+    : notNo === 0
+      ? t('extras.health.savedNone', { total: TOTAL })
+      : t('extras.health.savedSome', { count: notNo, total: TOTAL });
 
   return (
     <>
       <p className="oc-lead">{t('extras.lead')}</p>
-      <SubPanel
-        drill
-        headId={HEALTH_HEAD}
-        title={t('extras.health.title')}
-        summary={healthSummary}
-        onToggle={() => setSearch({ view: 'health' })}
+
+      <div className="oc-card oc-card--tint">
+        <Heading className="oc-h2">{t('extras.health.title')}</Heading>
+        <p className="oc-small">{t('extras.health.text')}</p>
+        <p className="oc-small">
+          <strong>{healthStatus}</strong>
+        </p>
+        <Button variant="link" id={HEALTH_HEAD} onClick={() => setSearch({ view: 'health' })}>
+          {extras.health.saved ? t('extras.health.change') : t('extras.health.open')}
+        </Button>
+      </div>
+
+      <hr className="oc-divider" />
+      <Heading className="oc-h2">
+        {self ? t('extras.address.title.self') : t('extras.address.title', { name })}
+      </Heading>
+      <HomeAddress />
+
+      <hr className="oc-divider" />
+      <Field
+        id={IDS.phone}
+        label={t('extras.phone')}
+        optional
+        type="tel"
+        autoComplete="tel"
+        inputMode="tel"
+        value={extras.phone}
+        hint={self ? t('extras.phoneHint.self') : t('extras.phoneHint', { name })}
+        error={validation.shown('phone')}
+        onChange={(event) => update({ phone: event.target.value })}
+        onBlur={() => validation.touch('phone')}
       />
-      <SubPanel
-        title={self ? t('extras.more.title.self') : t('extras.more.title', { name })}
-        summary={moreSummary}
-        open={openSubs.has('more')}
-        onToggle={() => toggle('more')}
-        why={
-          <ReasonList
-            draft
-            items={[
-              { field: t('extras.more.sex'), reason: t('reason.patient.sex') },
-              { field: t('extras.more.race'), reason: t('reason.patient.race') },
-            ]}
+
+      <hr className="oc-divider" />
+      <Heading className="oc-h2">{t('extras.reminders.title')}</Heading>
+      <p className="oc-small">{t('extras.reminders.text')}</p>
+
+      <Choice
+        kind="checkbox"
+        title={t('extras.reminders.byEmail')}
+        checked={extras.remindByEmail}
+        onChange={(remindByEmail) => update({ remindByEmail })}
+      />
+      {extras.remindByEmail && sameEmail ? (
+        <fieldset className="oc-fieldset">
+          <legend className="oc-sr">{t('extras.reminders.emailTo')}</legend>
+          <Choice
+            kind="radio"
+            name="reminder-email"
+            title={sameEmail}
+            sub={t('extras.reminders.sameEmail')}
+            checked={!otherEmail}
+            onChange={() => {
+              setOtherEmail(false);
+              update({ reminderEmail: '' });
+            }}
           />
-        }
-      >
-        <SelectField
-          label={t('extras.more.sex')}
-          value={extras.sex ?? ''}
-          onChange={(event) => dispatch({ type: 'extras/update', patch: { sex: event.target.value || null } })}
-        >
-          <option value="">{t('extras.more.choose')}</option>
-          {SEX_OPTIONS.map((option) => (
-            <option key={option.id} value={option.id}>
-              {t(option.label)}
-            </option>
-          ))}
-        </SelectField>
-        <SelectField
-          label={t('extras.more.race')}
-          value={extras.race ?? ''}
-          onChange={(event) => dispatch({ type: 'extras/update', patch: { race: event.target.value || null } })}
-        >
-          <option value="">{t('extras.more.choose')}</option>
-          {RACE_OPTIONS.map((option) => (
-            <option key={option.id} value={option.id}>
-              {t(option.label)}
-            </option>
-          ))}
-        </SelectField>
-      </SubPanel>
-      <SubPanel
-        title={self ? t('extras.address.title.self') : t('extras.address.title', { name })}
-        summary={addressSummary}
-        open={openSubs.has('address')}
-        onToggle={() => toggle('address')}
-        why={<p>{t('reason.extras.address')}</p>}
-      >
-        <HomeAddress />
-      </SubPanel>
-      <SubPanel
-        title={t('extras.reminders.title')}
-        summary={remindersSummary}
-        open={openSubs.has('reminders')}
-        onToggle={() => toggle('reminders')}
-        why={
-          <ReasonList
-            draft
-            items={[
-              { field: t('extras.reminders.phone'), reason: t('reason.extras.phone') },
-              { field: t('extras.reminders.email'), reason: t('reason.extras.email') },
-            ]}
+          <Choice
+            kind="radio"
+            name="reminder-email"
+            title={t('extras.reminders.otherEmail')}
+            checked={otherEmail}
+            onChange={() => {
+              setOtherEmail(true);
+              focusSoon(IDS.reminderEmail);
+            }}
           />
-        }
-      >
+        </fieldset>
+      ) : null}
+      {typeEmail ? (
         <Field
-          id={IDS.phone}
-          label={t('extras.reminders.phone')}
-          type="tel"
-          autoComplete="tel"
-          inputMode="tel"
-          value={extras.reminderPhone}
-          error={validation.shown('phone')}
-          onChange={(event) => dispatch({ type: 'extras/update', patch: { reminderPhone: event.target.value } })}
-          onBlur={() => validation.touch('phone')}
-        />
-        <Field
-          id={IDS.email}
+          id={IDS.reminderEmail}
           label={t('extras.reminders.email')}
           type="email"
           autoComplete="email"
           inputMode="email"
           value={extras.reminderEmail}
-          error={validation.shown('email')}
-          onChange={(event) => dispatch({ type: 'extras/update', patch: { reminderEmail: event.target.value } })}
-          onBlur={() => validation.touch('email')}
+          error={validation.shown('reminderEmail')}
+          onChange={(event) => update({ reminderEmail: event.target.value })}
+          onBlur={() => validation.touch('reminderEmail')}
         />
-      </SubPanel>
-      <SectionActions
-        label={t('extras.continue')}
-        beforeContinue={() => {
-          if (errors.phone || errors.email) setOpenSubs((current) => new Set(current).add('reminders'));
-          // The fields exist only once the sub-panel is open, so focus is set a tick later.
-          const ok = !errors.phone && !errors.email;
-          if (!ok) setTimeout(() => validation.validate(IDS), 0);
-          return ok;
-        }}
+      ) : null}
+
+      <Choice
+        kind="checkbox"
+        title={t('extras.reminders.byText')}
+        checked={extras.remindByText}
+        onChange={(remindByText) => update({ remindByText })}
       />
+      {extras.remindByText && samePhone ? (
+        <fieldset className="oc-fieldset">
+          <legend className="oc-sr">{t('extras.reminders.textTo')}</legend>
+          <Choice
+            kind="radio"
+            name="reminder-phone"
+            title={samePhone}
+            sub={t('extras.reminders.samePhone')}
+            checked={!otherPhone}
+            onChange={() => {
+              setOtherPhone(false);
+              update({ reminderPhone: '' });
+            }}
+          />
+          <Choice
+            kind="radio"
+            name="reminder-phone"
+            title={t('extras.reminders.otherPhone')}
+            checked={otherPhone}
+            onChange={() => {
+              setOtherPhone(true);
+              focusSoon(IDS.reminderPhone);
+            }}
+          />
+        </fieldset>
+      ) : null}
+      {typePhone ? (
+        <Field
+          id={IDS.reminderPhone}
+          label={t('extras.reminders.phone')}
+          type="tel"
+          autoComplete="tel"
+          inputMode="tel"
+          value={extras.reminderPhone}
+          error={validation.shown('reminderPhone')}
+          onChange={(event) => update({ reminderPhone: event.target.value })}
+          onBlur={() => validation.touch('reminderPhone')}
+        />
+      ) : null}
+      <Note>{t('extras.reminders.note')}</Note>
+
+      <hr className="oc-divider" />
+      <SelectField
+        label={t('extras.race')}
+        optional
+        value={extras.race ?? ''}
+        onChange={(event) => update({ race: event.target.value || null })}
+      >
+        <option value="">{t('extras.more.choose')}</option>
+        {RACE_OPTIONS.map((option) => (
+          <option key={option.id} value={option.id}>
+            {t(option.label)}
+          </option>
+        ))}
+      </SelectField>
+
+      <SectionActions label={t('extras.continue')} beforeContinue={() => validation.validate(IDS)} />
       {shell ? (
         <Button
           onClick={() => {

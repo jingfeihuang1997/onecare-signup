@@ -4,14 +4,17 @@ import {
   canSubmit,
   defaultProductChoice,
   fieldRules,
+  emailOwner,
   hasHelper,
-  insuranceKinds,
   isSectionComplete,
   isSectionValid,
+  knownPhone,
   missingSections,
   nextSection,
   orderedProducts,
   patientAge,
+  reminderTargets,
+  remindersValid,
   sectionList,
   showsProductChoice,
   stillOpen,
@@ -49,16 +52,46 @@ describe('age rules', () => {
     expect(hasHelper(state)).toBe(false);
   });
 
-  it('at 64 Medicare is not offered', () => {
-    const state = stateBornOn({ month: '12', day: '02', year: '1961' });
-    expect(fieldRules(state)).toEqual({ age: 64, requiresHelper: false, showMedicare: false });
-    expect(insuranceKinds(state)).toEqual(['other', 'none']);
+  it('Medicare is offered from 65, not at 64', () => {
+    expect(fieldRules(stateBornOn({ month: '12', day: '02', year: '1961' })).showMedicare).toBe(false);
+    expect(fieldRules(stateBornOn({ month: '12', day: '01', year: '1961' })).showMedicare).toBe(true);
   });
 
-  it('at 65 Medicare number and last 4 of SSN are offered', () => {
-    const state = stateBornOn({ month: '12', day: '01', year: '1961' });
-    expect(fieldRules(state)).toEqual({ age: 65, requiresHelper: false, showMedicare: true });
-    expect(insuranceKinds(state)).toEqual(['medicare', 'other', 'none']);
+  it('the confirmation email belongs to whoever fills in the form, until they say otherwise', () => {
+    const self = stateBornOn({ month: '09', day: '23', year: '1988' }, 'self');
+    expect(emailOwner(self)).toBe('patient');
+    const other = stateBornOn({ month: '09', day: '23', year: '1988' }, 'other');
+    expect(emailOwner(other)).toBe('helper');
+    other.draft.patient.emailOwner = 'guardian';
+    expect(emailOwner(other)).toBe('guardian');
+  });
+});
+
+describe('reminders', () => {
+  it('use the email and phone given earlier unless a different one was typed', () => {
+    const state = referenceState();
+    expect(reminderTargets(state)).toEqual({ email: null, phone: null });
+    expect(remindersValid(state)).toBe(true);
+
+    state.draft.extras = { ...state.draft.extras, remindByEmail: true, remindByText: true };
+    // The helper's mobile number stands in until the patient's phone is given.
+    expect(knownPhone(state)).toBe('(313) 555-0142');
+    expect(reminderTargets(state)).toEqual({ email: 'ana.lopez@example.com', phone: '(313) 555-0142' });
+
+    state.draft.extras.phone = '(313) 555-0199';
+    expect(reminderTargets(state).phone).toBe('(313) 555-0199');
+
+    state.draft.extras.reminderEmail = 'maria@example.com';
+    state.draft.extras.reminderPhone = '734555';
+    expect(reminderTargets(state)).toEqual({ email: 'maria@example.com', phone: '734555' });
+    expect(remindersValid(state)).toBe(false);
+  });
+
+  it('a text reminder with no phone number anywhere is not valid', () => {
+    const state = stateBornOn({ month: '09', day: '23', year: '1988' }, 'self');
+    state.draft.extras.remindByText = true;
+    expect(knownPhone(state)).toBe('');
+    expect(remindersValid(state)).toBe(false);
   });
 });
 
@@ -93,7 +126,7 @@ describe('sections', () => {
     expect(isSectionComplete(state, 'vaccines', testConfig, NOW)).toBe(false);
   });
 
-  it('Patient needs both names, a real past date of birth and a finished lookup', () => {
+  it('Patient needs both names, a real past date of birth, an email and a finished lookup', () => {
     const state = referenceState();
     expect(isSectionValid(state, 'patient', testConfig, NOW)).toBe(true);
 
@@ -109,6 +142,15 @@ describe('sections', () => {
     state.draft.patient.dob = { month: '04', day: '12', year: '1954' };
     state.draft.patient.lastName = '  ';
     expect(isSectionValid(state, 'patient', testConfig, NOW)).toBe(false);
+
+    state.draft.patient.lastName = 'Lopez';
+    expect(isSectionValid(state, 'patient', testConfig, NOW)).toBe(true);
+    state.draft.patient.email = 'ana.lopez@';
+    expect(isSectionValid(state, 'patient', testConfig, NOW)).toBe(false);
+
+    state.draft.patient.email = 'ana.lopez@example.com';
+    state.draft.patient.sex = null;
+    expect(isSectionValid(state, 'patient', testConfig, NOW)).toBe(false);
   });
 
   it('"Your details" accepts a typed relationship for "Other"', () => {
@@ -117,7 +159,7 @@ describe('sections', () => {
     expect(isSectionValid(state, 'helper', testConfig, NOW)).toBe(false);
     state.draft.helper.relationshipOther = 'Neighbor';
     expect(isSectionValid(state, 'helper', testConfig, NOW)).toBe(true);
-    state.draft.helper.email = 'ana.lopez@';
+    state.draft.helper.phone = '313555';
     expect(isSectionValid(state, 'helper', testConfig, NOW)).toBe(false);
   });
 
@@ -131,34 +173,46 @@ describe('sections', () => {
     expect(isSectionValid(state, 'vaccines', testConfig, NOW)).toBe(true);
   });
 
-  it('Insurance passes with "no insurance", with both photos, or with every field typed', () => {
+  it('Insurance passes with "No", "I\'m not sure", both photos, or the details typed in', () => {
     const state = referenceState();
     const blank = emptyState().draft.insurance;
 
     state.draft.insurance = { ...blank };
     expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(false);
 
-    state.draft.insurance = { ...blank, kind: 'none' };
+    state.draft.insurance = { ...blank, has: 'no' };
+    expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(true);
+    state.draft.insurance = { ...blank, has: 'notSure' };
     expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(true);
 
-    state.draft.insurance = { ...blank, kind: 'medicare', medicareNumber: '1EG4-TE5-MK73' };
-    expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(false);
-    state.draft.insurance.ssnLast4 = '6789';
-    expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(true);
-
-    state.draft.insurance = { ...blank, kind: 'other', frontImage: 'data:front' };
+    // Yes, with photos: both sides.
+    state.draft.insurance = { ...blank, has: 'yes', frontImage: 'data:front' };
     expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(false);
     state.draft.insurance.backImage = 'data:back';
     expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(true);
 
+    // Yes, typed in: a type has to be chosen first.
+    state.draft.insurance = { ...blank, has: 'yes', entry: 'manual' };
+    expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(false);
+
+    state.draft.insurance = { ...blank, has: 'yes', entry: 'manual', kind: 'medicare', medicareNumber: '1EG4-TE5-MK73' };
+    expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(false);
+    state.draft.insurance.ssnLast4 = '6789';
+    expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(true);
+
+    // Other insurance: every detail but the group ID, and the last 4 of the SSN.
     state.draft.insurance = {
       ...blank,
+      has: 'yes',
+      entry: 'manual',
       kind: 'other',
-      card: { company: 'A', planName: 'B', bin: '1', pcn: '2', memberId: '3', groupId: '' },
+      card: { ...blank.card, company: 'A', planName: 'B', bin: '1', pcn: '2', memberId: '3' },
     };
     expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(false);
-    state.draft.insurance.card.groupId = '4';
+    state.draft.insurance.ssnLast4 = '6789';
     expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(true);
+    state.draft.insurance.card.memberId = ' ';
+    expect(isSectionValid(state, 'insurance', testConfig, NOW)).toBe(false);
   });
 
   it('Insurance is not required when the config flag is off', () => {
@@ -275,8 +329,8 @@ describe('vaccine list', () => {
 
 describe('still open', () => {
   it('lists every optional sub-panel that was not filled in', () => {
-    expect(stillOpen(emptyState())).toEqual(['health', 'more', 'address', 'reminders']);
+    expect(stillOpen(emptyState())).toEqual(['health', 'address', 'reminders', 'more']);
     // Reference scenario: health questions answered and address added.
-    expect(stillOpen(referenceState())).toEqual(['more', 'reminders']);
+    expect(stillOpen(referenceState())).toEqual(['reminders', 'more']);
   });
 });

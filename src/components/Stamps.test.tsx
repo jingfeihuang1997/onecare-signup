@@ -1,4 +1,5 @@
 import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { Stamps, type StampItem } from './Stamps';
 
 const items: StampItem[] = [
@@ -18,6 +19,21 @@ describe('Stamps', () => {
     expect(screen.getByText('Shots').parentElement).toHaveClass('is-current');
     expect(screen.getByText('Shots').parentElement).toHaveAttribute('aria-current', 'step');
     expect(screen.getByText('+')).toHaveClass('oc-stamp__mark');
+  });
+
+  it('with onSelect, every stamp is a button that opens its step, done or not', async () => {
+    const onSelect = vi.fn();
+    render(<Stamps items={items} onSelect={onSelect} />);
+    expect(screen.getAllByRole('button').map((button) => button.textContent)).toEqual([
+      'Whodone',
+      '2Shots',
+      '3Card',
+      '+Extras',
+      '4Sign',
+    ]);
+    expect(screen.getByRole('button', { name: /Shots/ })).toHaveAttribute('aria-current', 'step');
+    await userEvent.click(screen.getByRole('button', { name: /Sign/ }));
+    expect(onSelect).toHaveBeenCalledWith('sign');
   });
 
   it('says so when every step is done, and can sit flat inside the pass', () => {

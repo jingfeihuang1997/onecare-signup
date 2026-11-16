@@ -68,17 +68,22 @@ function ProductPicker({ row, age, onChoose }: ProductChoiceProps) {
       .filter(Boolean)
       .join(t('common.separator')) || undefined;
 
-  const option = (choice: ProductChoice, title: string, subtitle?: string) => (
+  const option = (choice: ProductChoice, title: string, subtitle?: string, details?: string) => (
     <Choice
       key={choice.kind === 'product' ? choice.productId : choice.kind}
       kind="radio"
       name={group}
+      top={Boolean(details)}
       title={title}
       sub={subtitle}
       checked={sameChoice(chosen, choice)}
       onChange={() => onChoose(choice)}
-    />
+    >
+      {details}
+    </Choice>
   );
+  const productOption = (item: VaccineProduct) =>
+    option({ kind: 'product', productId: item.id }, item.name, sub(item), t(item.details));
 
   const hiddenChoice = chosen && chosen.kind !== 'product' ? choiceLabel(chosen, products, t) : null;
 
@@ -87,13 +92,12 @@ function ProductPicker({ row, age, onChoose }: ProductChoiceProps) {
       <legend className="oc-label">
         {t('vaccines.whichProduct', { vaccine: t(`vaccine.${vaccine.id}.short`) })}
       </legend>
-      {option({ kind: 'product', productId: first.id }, first.name, sub(first))}
+      <span className="oc-hint">{t('vaccines.productDraft')}</span>
+      {productOption(first)}
       {hiddenChoice ? <p className="oc-small">{t('vaccines.chosen', { choice: hiddenChoice })}</p> : null}
       <Disclosure plain label={t('vaccines.otherOptions', { count: others.length + 2 })}>
         <div className="oc-stack oc-stack--tight">
-          {others.map((product) =>
-            option({ kind: 'product', productId: product.id }, product.name, sub(product)),
-          )}
+          {others.map(productOption)}
           {option({ kind: 'noPreference' }, t('vaccines.noPreference'))}
           {option({ kind: 'askPharmacist' }, t('vaccines.askPharmacist'))}
         </div>
@@ -160,7 +164,7 @@ export function VaccinesSection() {
         ) : null}
         {warn && status.lastDate ? (
           <>
-            <Note warn>
+            <Note>
               {self
                 ? t('vaccines.hadWarning.self', { date: formatDate(status.lastDate, language) })
                 : t('vaccines.hadWarning', { name, date: formatDate(status.lastDate, language) })}

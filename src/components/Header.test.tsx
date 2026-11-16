@@ -15,10 +15,13 @@ function renderHeader() {
 }
 
 describe('Header', () => {
-  it('shows the pharmacy and the logo placeholder', () => {
-    renderHeader();
+  it('shows the pharmacy and the OneCare mark next to its name', () => {
+    const { container } = renderHeader();
     expect(screen.getByText('Cedar Lane Pharmacy')).toBeInTheDocument();
-    expect(screen.getByRole('img', { name: 'OneCare logo placeholder' })).toHaveTextContent('LOGO');
+    // The mark is decorative: the name is written beside it.
+    const logo = container.querySelector('svg.oc-logo');
+    expect(logo).toHaveAttribute('aria-hidden', 'true');
+    expect(logo?.parentElement).toHaveTextContent('Powered byOneCare');
   });
 
   it('steps the root font size through 100, 112, 125 and 140 percent', async () => {

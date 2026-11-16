@@ -92,3 +92,20 @@ describe('seed data', () => {
     ]);
   });
 });
+
+describe('products', () => {
+  it('every vaccine lists at least one product, each with a note in the dictionary', async () => {
+    const { VACCINES } = await import('./vaccines');
+    const { en } = await import('../i18n/en');
+    const ids = new Set<string>();
+    for (const vaccine of VACCINES) {
+      expect(vaccine.products.length, vaccine.id).toBeGreaterThan(0);
+      for (const product of vaccine.products) {
+        expect(en[product.details], product.id).toBeTruthy();
+        expect(product.details).toBe(`product.${product.id}.details`);
+        expect(ids.has(product.id), `${product.id} is listed once`).toBe(false);
+        ids.add(product.id);
+      }
+    }
+  });
+});

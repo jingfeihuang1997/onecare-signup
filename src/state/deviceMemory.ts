@@ -2,6 +2,7 @@ import { LANGUAGES, type Language } from '../i18n';
 import type {
   DateOfBirth,
   DraftPosition,
+  EmailOwner,
   EnteredAddress,
   Helper,
   ProductChoice,
@@ -22,8 +23,9 @@ import { createEmptyDraft } from './draft';
 // same field-by-field functions. A field that is not named here cannot be stored.
 //
 // May store:   language, text size, helper details, and per patient: first name, last name,
-//              preferred name, date of birth, vaccine selections, current section,
-//              home address, reminder phone and email.
+//              preferred name, date of birth, the confirmation email and whose it is,
+//              vaccine selections, current section, home address, phone number,
+//              reminder choices with their phone and email.
 // Never store: last 4 of SSN, Medicare number, any insurance ID, card images,
 //              health answers, sex, race, signature.
 
@@ -45,6 +47,7 @@ const POSITIONS: readonly DraftPosition[] = [
 const RESTORABLE_SECTIONS: readonly SectionId[] = ['patient', 'helper', 'vaccines'];
 const SECTION_IDS: readonly SectionId[] = ['patient', 'helper', 'vaccines', 'insurance', 'extras', 'sign'];
 const RELATIONSHIP_IDS: readonly RelationshipId[] = ['child', 'spouse', 'parent', 'guardian', 'other'];
+const EMAIL_OWNERS: readonly EmailOwner[] = ['patient', 'helper', ...RELATIONSHIP_IDS];
 
 export interface StoredPrefs {
   language?: Language;
@@ -69,11 +72,16 @@ export interface StoredPatient {
   lastName: string;
   preferredName: string;
   dob: DateOfBirth;
+  email: string;
+  emailOwner: EmailOwner | null;
   vaccines: { selections: VaccineSelection[]; notSure: boolean };
   currentSection: DraftPosition;
   /** Sections finished so far. Progress only, like the current section: no content. */
   confirmed: SectionId[];
   address: EnteredAddress | null;
+  phone: string;
+  remindByEmail: boolean;
+  remindByText: boolean;
   reminderPhone: string;
   reminderEmail: string;
 }
@@ -92,7 +100,7 @@ export interface DeviceMemory {
   read(): DeviceMemoryData;
   savePrefs(prefs: StoredPrefs): void;
   saveDraft(draft: SignupDraft): void;
-  /** "Forget what is saved on this phone": deletes the key. */
+  /** "Forget what is saved on this device": deletes the key. */
   forget(): void;
 }
 
@@ -176,7 +184,6 @@ function pickHelper(value: unknown): StoredHelper | null {
     relationship: oneOf(value.relationship, RELATIONSHIP_IDS),
     relationshipOther: text(value.relationshipOther),
     phone: text(value.phone),
-    email: text(value.email),
   };
 }
 
@@ -195,10 +202,15 @@ function pickPatient(value: unknown): StoredPatient | null {
     lastName: text(value.lastName),
     preferredName: text(value.preferredName),
     dob: pickDob(value.dob),
+    email: text(value.email),
+    emailOwner: oneOf(value.emailOwner, EMAIL_OWNERS),
     vaccines: { selections: pickSelections(vaccines.selections), notSure: vaccines.notSure === true },
     currentSection: oneOf(value.currentSection, POSITIONS) ?? 'start',
     confirmed: pickSections(value.confirmed),
     address: pickAddress(value.address),
+    phone: text(value.phone),
+    remindByEmail: value.remindByEmail === true,
+    remindByText: value.remindByText === true,
     reminderPhone: text(value.reminderPhone),
     reminderEmail: text(value.reminderEmail),
   };
@@ -225,7 +237,6 @@ function storedHelper(helper: Helper, savedAt: string): StoredHelper {
     relationship: helper.relationship,
     relationshipOther: helper.relationshipOther,
     phone: helper.phone,
-    email: helper.email,
   };
 }
 
@@ -240,6 +251,8 @@ function storedPatient(draft: SignupDraft, savedAt: string): StoredPatient {
     lastName: draft.patient.lastName,
     preferredName: draft.patient.preferredName,
     dob: pickDob(draft.patient.dob),
+    email: draft.patient.email,
+    emailOwner: draft.patient.emailOwner,
     vaccines: {
       selections: pickSelections(draft.vaccines.selections),
       notSure: draft.vaccines.notSure,
@@ -247,6 +260,9 @@ function storedPatient(draft: SignupDraft, savedAt: string): StoredPatient {
     currentSection: draft.currentSection,
     confirmed: pickSections(draft.confirmed),
     address: pickAddress(draft.extras.address),
+    phone: draft.extras.phone,
+    remindByEmail: draft.extras.remindByEmail,
+    remindByText: draft.extras.remindByText,
     reminderPhone: draft.extras.reminderPhone,
     reminderEmail: draft.extras.reminderEmail,
   };
@@ -271,6 +287,8 @@ export function draftFromStored(entry: StoredPatient, helper: StoredHelper | nul
       lastName: entry.lastName,
       preferredName: entry.preferredName,
       dob: entry.dob,
+      email: entry.email,
+      emailOwner: entry.emailOwner,
     },
     helper: helper
       ? {
@@ -279,13 +297,15 @@ export function draftFromStored(entry: StoredPatient, helper: StoredHelper | nul
           relationship: helper.relationship,
           relationshipOther: helper.relationshipOther,
           phone: helper.phone,
-          email: helper.email,
         }
       : draft.helper,
     vaccines: entry.vaccines,
     extras: {
       ...draft.extras,
       address: entry.address,
+      phone: entry.phone,
+      remindByEmail: entry.remindByEmail,
+      remindByText: entry.remindByText,
       reminderPhone: entry.reminderPhone,
       reminderEmail: entry.reminderEmail,
     },

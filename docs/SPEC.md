@@ -173,6 +173,39 @@ Made by the product owner after the Prompt 0 review. Where this section differs 
 
 12. **All vaccines are shown.** Every vaccine the clinic offers appears in the list, whatever the patient's age: all 16 in the reference scenario. Nothing is hidden by age and there is no "Not offered at [name]'s age" line. This replaces the age filter in section 5.3. The age rules stay in config and only mark a row as outside the usual age.
 
+Added Nov 16, 2026, after the review of the first build:
+
+13. **Date of birth.** The month is a list of month names; day and year stay numeric inputs. This replaces the three numeric inputs in section 5.2.
+14. **Patient section.** Names start with a capital letter automatically. Sex (optional) is asked here, not in the optional section. A confirmation email is required here, with "Whose email is this?" so it can be the patient's, a parent's or guardian's, or someone else's. The helper step no longer asks for an email. Notices in this section (under 18, record found, no record) use the yellow notice style.
+15. **Insurance flow.** First "Do you have health insurance?" (it includes Medicare and Medicaid): Yes, No, or I'm not sure. Yes: add photos of the front and back of the card (upload or take a photo), or "Enter details manually". Manual: choose Medicare or Other insurance, with "Upload a card instead" to go back. Medicare: Medicare number (MBI) and last 4 of the SSN. Other insurance: company or plan name, member ID, group ID (optional) and last 4 of the SSN. No and "I'm not sure" complete the section. Medicare is offered at any age. Plan name, BIN and PCN are no longer asked. No QR hand-off. This replaces section 5.4 and item 10 above.
+16. **Save time at the clinic.** Everything is on view, nothing folded: the health questions in a highlighted block, then home address, phone number (optional), reminders and race. The health questions show "Not started" until they are opened and saved; opened, all answers start at No. Reminders are opt-in: by email, by text message, or both. Each offers what was given earlier (the confirmation email; the phone number) or a different one, with a line explaining that the confirmation is emailed either way. This replaces the four sub-panels in section 5.6.
+17. **Consent and signature.** Section 6 is named "Consent and signature". When only one person can sign (someone signing up themselves, or a helper signing for a patient under 18), "Who is signing?" is left out, and the signer's name and the typed signature are filled in from the name given earlier. The name can still be changed.
+18. **"Why we ask"** is in regular weight and smaller than the body text.
+19. **Wide screens.** An opened section scrolls up to the same height as the side column, so their top edges line up.
+
+Added Nov 16, 2026, after the second review. Where these differ from items 14 and 15, these win:
+
+20. **Stamps lead to their step (B).** Each stamp at the top of option B, and in the pass on a wide screen, is a button that opens its step, finished or not. A step that is not finished stays marked as not done. "Who" opens the first of its steps that is not finished.
+21. **Insurance, corrected.** Medicare is offered from age 65 only: under 65 the insurance type is not asked. "Other insurance" typed in asks for insurance company, plan name, BIN, PCN, member ID, group ID (optional) and the last 4 of the SSN.
+22. **Reminder colour.** Every reminder and notice uses one colour per theme: yellow in A, light blue in B. A warning that needs attention keeps its border.
+23. **Products.** Every vaccine lists its products, and every product has one line of details under its name. The lists and the lines are a draft by Claude from general knowledge, to be checked (see `TO-BE-VERIFIED.md`).
+24. **Sex is required**, with "Prefer not to say" among the choices. It is still never stored on the device, so after a refresh the Patient section asks for it again.
+25. **Whose email.** The choices are: mine, a family member's, my guardian's, someone else's (for a helper: mine, the patient's, a family member's, someone else's).
+26. **Logo.** The header shows the OneCare mark as an SVG drawn from the product owner's picture, in place of the "LOGO" placeholder.
+
+Added Nov 16, 2026, after the third review. These replace items 17, 25 and 26 where they differ:
+
+27. **Logo.** Four tiles on a transparent background, in the text colour. It is also the browser tab icon (`public/favicon.svg`).
+28. **Top spacing on wide screens.** The space between the top bar and the content is the same when a page opens as after scrolling, so the side column and the section headings never shift. This holds in A and in B, on every step.
+29. **Whose email.** "Mine", then (for a helper) the patient, then the same list as "Your relationship to [name]": daughter or son, spouse or partner, parent, legal guardian or representative, other. No second set of words for the same people.
+30. **Sex choices.** Female, Male, Non-binary (X), Prefer not to say.
+31. **Who is signing.** Left out only for someone signing up themselves. A helper always sees it, also when the patient is under 18 and the helper is the only choice.
+
+32. **Logo, corrected.** Four tiles with rounded corners; the top right one is turned on its corner.
+33. **"Device", not "phone".** What is remembered is "saved on this device".
+34. **No focus ring on arrival.** A page that has just loaded or been refreshed does not move focus to the open section, so no outline appears around its heading. After the first key press or tap, opening a section moves focus as before.
+35. **One spacing scale.** Every gap and padding uses 4, 8, 12, 16 or 24px from the variables, and every box (card, panel, pass, drop zone) has the same 12px inset.
+
 ### 10.2 Defaults the product owner left to the builder
 
 - Vaccine rows sort due, had, none, then by a fixed display order taken from A05.

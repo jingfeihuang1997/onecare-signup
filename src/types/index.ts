@@ -1,5 +1,7 @@
 // Data model for the sign-up (SPEC section 8). Shared by options A and B.
 
+import type { StringKey } from '../i18n';
+
 // --- Clinic and pharmacy ---------------------------------------------------
 
 export type VaccineId =
@@ -64,7 +66,19 @@ export interface Patient {
   lastName: string;
   preferredName: string;
   dob: DateOfBirth;
+  /** Optional. Never written to device memory. */
+  sex: string | null;
+  /** Where the confirmation goes. Required (SPEC 10.1, item 14). */
+  email: string;
+  /** Whose email that is. null means the usual owner: see the `emailOwner` selector. */
+  emailOwner: EmailOwner | null;
 }
+
+/**
+ * The patient, the person signing up the patient ("helper"), or someone else, named by
+ * their relationship to the patient with the same list as "Your relationship to [name]".
+ */
+export type EmailOwner = 'patient' | 'helper' | RelationshipId;
 
 /** What the lookup returns about an existing record. Values arrive already masked. */
 export interface MaskedRecord {
@@ -89,7 +103,6 @@ export interface Helper {
   /** Free text, used when the relationship is "other" (SPEC 10.1, item 8). */
   relationshipOther: string;
   phone: string;
-  email: string;
 }
 
 // --- Vaccines --------------------------------------------------------------
@@ -100,6 +113,8 @@ export interface VaccineProduct {
   name: string;
   /** Brand name for one-line summaries, for example "Spikevax". */
   shortName: string;
+  /** Dictionary key of the one-line note shown under the product. */
+  details: StringKey;
   /** Shows "Suggested for age N+" from this age. */
   suggestedFromAge?: number;
 }
@@ -156,10 +171,14 @@ export interface CardReading {
   fields: Partial<Record<CardFieldName, { value: string; confidence: number }>>;
 }
 
-/** "medicare", any "other" insurance, or "none" (SPEC 10.1, item 10). */
-export type InsuranceKind = 'medicare' | 'other' | 'none';
+/** Answer to "Do you have health insurance?" (SPEC 10.1, item 15). */
+export type InsuranceAnswer = 'yes' | 'no' | 'notSure';
+
+/** The insurance type chosen when the details are typed in. */
+export type InsuranceKind = 'medicare' | 'other';
 
 export interface Insurance {
+  has: InsuranceAnswer | null;
   kind: InsuranceKind | null;
   medicareNumber: string;
   ssnLast4: string;
@@ -167,8 +186,8 @@ export interface Insurance {
   /** Card photos as data URLs, kept for the pharmacy. Never written to device memory. */
   frontImage: string | null;
   backImage: string | null;
-  /** How the card fields were entered. */
-  entry: 'photo' | 'manual' | null;
+  /** Photos of the card (the default), or the details typed in. */
+  entry: 'photo' | 'manual';
   /** Fields the reader was unsure about, for the person to check. */
   checkFields: CardFieldName[];
 }
@@ -209,16 +228,22 @@ export interface Extras {
     /** One answer per question. All start as "no" (SPEC 5.6). */
     answers: HealthAnswer[];
   };
-  sex: string | null;
   race: string | null;
   address: HomeAddress | null;
-  reminderPhone: string;
+  /** The patient's phone number, in case the pharmacy needs to reach them. Optional. */
+  phone: string;
+  /** Reminders are opt-in, by email, by text message, or both. */
+  remindByEmail: boolean;
+  remindByText: boolean;
+  /** A different address for reminders. Empty: the confirmation email is used. */
   reminderEmail: string;
+  /** A different number for reminders. Empty: the phone number already given is used. */
+  reminderPhone: string;
   /** The person pressed "Skip for now". */
   skipped: boolean;
 }
 
-export type ExtrasItem = 'health' | 'more' | 'address' | 'reminders';
+export type ExtrasItem = 'health' | 'address' | 'reminders' | 'more';
 
 // --- Signing ---------------------------------------------------------------
 

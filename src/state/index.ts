@@ -28,8 +28,11 @@ export {
   defaultProductChoice,
   fieldRules,
   hasHelper,
-  insuranceKinds,
+  emailOwner,
   isSectionComplete,
+  knownPhone,
+  reminderTargets,
+  remindersValid,
   isSectionValid,
   missingSections,
   nextSection,
@@ -53,6 +56,7 @@ export {
   sectionSummary,
 } from './summaries';
 export {
+  capitalizeFirst,
   formatMedicareNumber,
   isEmail,
   isFilled,

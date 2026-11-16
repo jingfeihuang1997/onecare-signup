@@ -1,7 +1,7 @@
 import { Field, ReasonList, SelectField } from '../components';
 import { RELATIONSHIPS } from '../data/relationships';
 import { useI18n } from '../i18n';
-import { isEmail, isFilled, isUsPhone, patientCallName, useSignup } from '../state';
+import { capitalizeFirst, isFilled, isUsPhone, patientCallName, useSignup } from '../state';
 import type { Helper } from '../types';
 import { SectionActions } from './SectionActions';
 import { useValidation } from './useValidation';
@@ -12,7 +12,6 @@ const IDS = {
   relationship: 'helper-relationship',
   relationshipOther: 'helper-relationship-other',
   phone: 'helper-phone',
-  email: 'helper-email',
 } as const;
 
 /** "Why we ask" for the Your details section. */
@@ -25,7 +24,6 @@ export function HelperWhy() {
         { field: t('helper.name'), reason: t('reason.helper.name') },
         { field: t('helper.relationshipNoName'), reason: t('reason.helper.relationship') },
         { field: t('helper.phone'), reason: t('reason.helper.phone') },
-        { field: t('helper.email'), reason: t('reason.helper.email') },
       ]}
     />
   );
@@ -51,7 +49,6 @@ export function HelperSection() {
         ? null
         : t('error.relationshipOther'),
     phone: isUsPhone(helper.phone) ? null : t('error.phone'),
-    email: isEmail(helper.email) ? null : t('error.email'),
   };
   const validation = useValidation(errors);
 
@@ -63,18 +60,20 @@ export function HelperSection() {
           id={IDS.firstName}
           label={t('helper.firstName')}
           autoComplete="given-name"
+          autoCapitalize="words"
           value={helper.firstName}
           error={validation.shown('firstName')}
-          onChange={(event) => update({ firstName: event.target.value })}
+          onChange={(event) => update({ firstName: capitalizeFirst(event.target.value) })}
           onBlur={() => validation.touch('firstName')}
         />
         <Field
           id={IDS.lastName}
           label={t('helper.lastName')}
           autoComplete="family-name"
+          autoCapitalize="words"
           value={helper.lastName}
           error={validation.shown('lastName')}
-          onChange={(event) => update({ lastName: event.target.value })}
+          onChange={(event) => update({ lastName: capitalizeFirst(event.target.value) })}
           onBlur={() => validation.touch('lastName')}
         />
       </div>
@@ -108,30 +107,17 @@ export function HelperSection() {
           onBlur={() => validation.touch('relationshipOther')}
         />
       ) : null}
-      <div className="oc-grid">
-        <Field
-          id={IDS.phone}
-          label={t('helper.phone')}
-          type="tel"
-          autoComplete="tel"
-          inputMode="tel"
-          value={helper.phone}
-          error={validation.shown('phone')}
-          onChange={(event) => update({ phone: event.target.value })}
-          onBlur={() => validation.touch('phone')}
-        />
-        <Field
-          id={IDS.email}
-          label={t('helper.email')}
-          type="email"
-          autoComplete="email"
-          inputMode="email"
-          value={helper.email}
-          error={validation.shown('email')}
-          onChange={(event) => update({ email: event.target.value })}
-          onBlur={() => validation.touch('email')}
-        />
-      </div>
+      <Field
+        id={IDS.phone}
+        label={t('helper.phone')}
+        type="tel"
+        autoComplete="tel"
+        inputMode="tel"
+        value={helper.phone}
+        error={validation.shown('phone')}
+        onChange={(event) => update({ phone: event.target.value })}
+        onBlur={() => validation.touch('phone')}
+      />
       <SectionActions beforeContinue={() => validation.validate(IDS)} />
     </>
   );

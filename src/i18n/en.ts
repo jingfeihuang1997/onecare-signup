@@ -10,8 +10,6 @@ export const en = {
   'common.optional': 'Optional',
 
   'header.poweredBy': 'Powered by',
-  'header.logoPlaceholder': 'LOGO',
-  'header.logoAlt': 'OneCare logo placeholder',
   'header.smallerText': 'Smaller text',
   'header.largerText': 'Larger text',
   'header.smallerGlyph': 'A−',
@@ -53,7 +51,7 @@ export const en = {
   'dob.month': 'Month',
   'dob.day': 'Day',
   'dob.year': 'Year',
-  'dob.monthPlaceholder': 'MM',
+  'dob.monthPlaceholder': 'Choose',
   'dob.dayPlaceholder': 'DD',
   'dob.yearPlaceholder': 'YYYY',
 
@@ -92,7 +90,7 @@ export const en = {
   'reason.patient.dob':
     "Date of birth is used to verify insurance, to locate an existing record, and to determine which vaccines and questions apply at the patient's age.",
   'reason.patient.sex':
-    'Optional. Sex helps the pharmacist check which vaccines and health questions apply. It is also used, without your name, in a study of how well vaccination clinics reach different groups of people. Your answer does not change your care.',
+    'Sex helps the pharmacist check which vaccines and health questions apply. It is also used, without your name, in a study of how well vaccination clinics reach different groups of people. You can choose "Prefer not to say". Your answer does not change your care.',
   'reason.patient.race':
     'Optional. Race is used, without your name, in a study of how well vaccination clinics reach different groups of people, so that gaps can be found and closed. Your answer does not change your care.',
 
@@ -100,14 +98,11 @@ export const en = {
   'reason.insurance.medicareNumber':
     'The Medicare number is required to bill Medicare, so that the patient is not charged out of pocket.',
   'reason.insurance.ssn4':
-    'The last four digits of the Social Security number are used by the pharmacy to bill Medicare correctly, so that the patient is not charged out of pocket.',
+    'The last four digits of the Social Security number are used by the pharmacy to bill the insurance plan or Medicare correctly, so that the patient is not charged out of pocket.',
   'reason.insurance.cardPhoto':
     'Optional. A photo of the card allows the insurance details to be read and filled in automatically. The images are kept for the pharmacy.',
   'reason.insurance.company':
     'The pharmacy requires the name of the insurance company to bill for the vaccine. It is shown on the insurance card.',
-  'reason.insurance.planName': 'The plan name is shown on the insurance card and is used for billing.',
-  'reason.insurance.bin': 'The BIN routes the pharmacy claim to the correct claims processor.',
-  'reason.insurance.pcn': 'The PCN is a second routing number, used together with the BIN.',
   'reason.insurance.memberId': 'The member ID identifies the patient on the insurance plan.',
   'reason.insurance.groupId': 'The group ID identifies the employer or group plan.',
 
@@ -118,15 +113,12 @@ export const en = {
     'Your relationship shows the basis on which you are signing for the patient, for example as a parent, an adult child or a legal representative.',
   'reason.helper.phone':
     'Reminders and contact on the day of the clinic go to the person managing the appointment.',
-  'reason.helper.email':
-    'The confirmation and the reminder are sent to the person managing the appointment.',
 
   // Why we ask: optional details
   'reason.extras.address':
     "Optional. The pharmacy keeps the patient's home address on file for future medication delivery. It is not required for billing.",
-  'reason.extras.phone': 'Optional. The phone number is used to send a reminder before the clinic.',
-  'reason.extras.email':
-    'Optional. The email address is used to send the confirmation and a reminder, and to help verify insurance.',
+  'reason.extras.phone':
+    'Optional. The pharmacy uses this number only if it needs to reach the patient about this visit.',
   'reason.extras.health': 'The pharmacist needs these answers before giving a vaccine.',
 
   // Why we ask: review and sign
@@ -236,7 +228,7 @@ export const en = {
   'section.vaccines': 'Vaccines',
   'section.insurance': 'Insurance and Medicare',
   'section.extras': 'Save time at the clinic',
-  'section.sign': 'Review and sign',
+  'section.sign': 'Consent and signature',
   'summary.patient.todo': 'Name and date of birth',
   'summary.helper.todo': 'Because you are signing up for {name}',
   'summary.helper.todoNoName': 'Because you are signing up for someone else',
@@ -254,7 +246,7 @@ export const en = {
   'summary.extras.todo': 'Health questions, address, reminders',
   'summary.extras.skipped': 'Skipped for now',
   'summary.extras.health': 'Health questions answered',
-  'summary.extras.more': 'More about {name} added',
+  'summary.extras.more': 'Race added',
   'summary.extras.address': 'Address added',
   'summary.extras.reminders': 'Reminder added',
   'summary.sign.todo': 'Check, then sign to finish',
@@ -269,7 +261,7 @@ export const en = {
   'page.start': 'Start',
   'page.done': 'Signed up',
   'page.title': '{page} · {pharmacy} vaccine sign-up',
-  'done.forgotten': 'Nothing is saved on this phone now.',
+  'done.forgotten': 'Nothing is saved on this device now.',
   'clinic.where': '{pharmacy} · {address}',
   'help.call': 'Need help? Call {pharmacy} at {phone}.',
   'aside.signingUp': 'Signing up {name}',
@@ -343,11 +335,11 @@ export const en = {
   'done.stillOpen': 'Still open',
   'done.stillOpenText': 'Optional. Add it now, or the pharmacist will ask at the clinic.',
   'done.open.health': 'Answer the {total} questions',
-  'done.open.moreLabel': 'More about {name}',
-  'done.open.more': 'Add sex and race',
-  'done.open.reminders': 'Add a phone number or email',
+  'done.open.moreLabel': 'Race',
+  'done.open.more': 'Add race',
+  'done.open.reminders': 'Choose a reminder',
   'done.saved':
-    'Saved on this phone so next time is faster. Card numbers and signatures are never saved.',
+    'Saved on this device so next time is faster. Card numbers and signatures are never saved.',
 
   // Start: language and "Welcome back"
   'language.label': 'Language',
@@ -356,8 +348,8 @@ export const en = {
   'welcome.continueSelf': 'Continue your sign-up',
   'welcome.stoppedAt': 'You stopped at {section}',
   'welcome.saved':
-    'Saved on this phone from last time. Card numbers and signatures are never saved.',
-  'welcome.forget': 'Forget what is saved on this phone',
+    'Saved on this device from last time. Card numbers and signatures are never saved.',
+  'welcome.forget': 'Forget what is saved on this device',
   'start.titleAgain': 'Or start a new sign-up. Who is it for?',
 
   // Patient. ".self" entries are used when the person signs up for themselves.
@@ -422,51 +414,31 @@ export const en = {
   'error.vaccines': 'Pick at least one vaccine, or tick "I\'m not sure".',
 
   // Insurance and Medicare. ".self" entries are used when the person signs up for themselves.
-  'insurance.lead': "A photo of {name}'s insurance or Medicare card fills in the details.",
-  'insurance.lead.self': 'A photo of your insurance or Medicare card fills in the details.',
-  'insurance.kind.legend': 'What insurance does {name} have?',
-  'insurance.kind.legend.self': 'What insurance do you have?',
+  'insurance.kind.legend': 'Insurance type',
   'insurance.kind.medicare': 'Medicare',
-  'insurance.kind.other': 'Other health insurance',
-  'insurance.kind.otherOnly': 'Health insurance',
-  'insurance.kind.none': 'No insurance',
+  'insurance.kind.other': 'Other insurance',
   'insurance.noneNote':
     'You can still sign up without insurance. At the clinic, the pharmacist will tell you the cost before giving any vaccine, and can point you to programs that may help pay for it.',
   'insurance.onFile': 'On file at {pharmacy}: Medicare number ending {ending}.',
-  'insurance.takeFront': 'Take a photo of the front',
-  'insurance.takeBack': 'Take a photo of the back',
-  'insurance.upload': 'Upload photos I already have',
-  'insurance.typeIn': 'Type it in instead',
-  'insurance.frontAdded': 'Front of card: photo added',
-  'insurance.backAdded': 'Back of card: photo added',
+  'insurance.typeIn': 'Enter details manually',
   'insurance.retake': 'Retake',
   'insurance.photoAlt.front': 'Photo of the front of the card',
   'insurance.photoAlt.back': 'Photo of the back of the card',
   'insurance.reading': 'Reading the card...',
   'insurance.readFailed': 'We could not read the card. Please type the details in.',
-  'insurance.check': 'The photo filled in the details below. Please check them.',
   'insurance.fieldCheck': 'Please check this one. The photo was hard to read here.',
   'insurance.company': 'Insurance company',
-  'insurance.planName': 'Plan name',
-  'insurance.bin': 'BIN',
-  'insurance.pcn': 'PCN',
   'insurance.memberId': 'Member ID',
   'insurance.groupId': 'Group ID',
-  'insurance.forMedicare': 'For Medicare',
-  'insurance.medicareNumber': 'Medicare number',
-  'insurance.medicareHint': 'The photo can fill this in.',
+  'insurance.medicareNumber': 'Medicare number (MBI)',
+  'insurance.medicareHint': 'Use the number on the red, white and blue Medicare card.',
   'insurance.ssn4': 'Last 4 digits of Social Security number',
   'insurance.secondCard': 'Add a second card',
   'insurance.secondCardNote':
     'If there is a second insurance card, bring it to the clinic and the pharmacy will add it there. Adding it here is not available yet.',
   'insurance.drop.front': 'Front of card',
   'insurance.drop.back': 'Back of card',
-  'insurance.drop.hint': 'Drag a photo here, or',
-  'insurance.drop.choose': 'Choose a file',
-  'insurance.drop.chooseAnother': 'Choose another file',
   'insurance.drop.added': 'Photo added',
-  'insurance.webcam.title': "Use this computer's camera",
-  'insurance.webcam.hint': 'Hold the card up to the camera, one side at a time.',
   'camera.front': 'Front of the card',
   'camera.back': 'Back of the card',
   'camera.text': 'Hold the card inside the frame, then press the button.',
@@ -478,33 +450,27 @@ export const en = {
   'camera.photoAlt': 'The photo you just took',
   'camera.use': 'Use this photo',
   'camera.retake': 'Retake',
-  'error.insuranceKind': 'Choose one of the options.',
+  'error.insuranceKind': 'Choose the insurance type.',
   'error.medicareNumber': 'Enter the 11-character Medicare number, like 1EG4-TE5-MK73.',
   'error.ssn4': 'Enter the last 4 digits.',
   'error.insuranceCard':
-    'Add photos of the front and back of the card, or type in all six details.',
+    'Add photos of the front and back of the card, or enter the details manually.',
 
   // Save time at the clinic (optional). ".self" entries are for someone signing up themselves.
   'extras.lead': 'Optional. Anything you add now is one less form at the clinic.',
   'extras.continue': 'Continue to sign',
   'extras.skip': 'Skip for now',
   'extras.health.title': 'Health questions',
-  'extras.health.default': '{total} answers, all set to No',
   'extras.health.savedNone': 'Saved: all {total} are No',
   'extras.health.savedSome': 'Saved: {count} of {total} changed from No',
   'extras.health.lead':
     'All {total} start as No. Change any that should be Yes or Not sure, answering for {name}.',
   'extras.health.lead.self': 'All {total} start as No. Change any that should be Yes or Not sure.',
   'extras.health.save': 'Save answers',
-  'extras.more.title': 'More about {name}',
-  'extras.more.title.self': 'More about you',
-  'extras.more.todo': 'Sex · Race',
-  'extras.more.sex': 'Sex',
-  'extras.more.race': 'Race',
   'extras.more.choose': 'Choose one',
   'sex.female': 'Female',
   'sex.male': 'Male',
-  'sex.another': 'Another',
+  'sex.another': 'Non-binary (X)',
   'sex.preferNot': 'Prefer not to say',
   'race.aian': 'American Indian or Alaska Native',
   'race.asian': 'Asian',
@@ -529,9 +495,8 @@ export const en = {
   'extras.address.chosen': 'Address',
   'extras.address.change': 'Use a different address',
   'extras.reminders.title': 'Reminders',
-  'extras.reminders.todo': 'Phone or email for a reminder',
-  'extras.reminders.phone': 'Phone number for a text reminder',
-  'extras.reminders.email': 'Email for a reminder',
+  'extras.reminders.phone': 'Mobile number for the reminder',
+  'extras.reminders.email': 'Email for the reminder',
   'b.heading.health': 'Health questions about {name}',
   'b.heading.health.self': 'Your health questions',
 
@@ -546,7 +511,6 @@ export const en = {
   'helper.relationshipChoose': 'Choose one',
   'helper.relationshipOther': 'Describe your relationship',
   'helper.phone': 'Your mobile number',
-  'helper.email': 'Your email',
 
   // Field errors
   'error.firstName': 'Enter the first name.',
@@ -576,6 +540,117 @@ export const en = {
   'b.heading.sign': 'Last stamp: check and sign.',
   'b.pass.shots': 'Shots on the pass',
 
+  'summary.extras.phone': 'Phone added',
+  'summary.insurance.notSure': 'Not sure. The pharmacist will check at the clinic.',
+  'reason.extras.reminders':
+    'Optional. A reminder is sent before the clinic by email, by text message, or both, only if you choose it.',
+  'reason.patient.email':
+    'Required. The confirmation of this sign-up is sent to this email address. It can belong to the patient or to someone who helps them, such as a family member or a guardian.',
+  'error.insuranceHas': "Choose Yes, No or I'm not sure.",
+  'error.memberId': 'Enter the member ID.',
+  'patient.sex': 'Sex',
+  'patient.email': 'Email for the confirmation',
+  'patient.emailHint': 'The sign-up confirmation is sent here.',
+  'patient.emailOwner': 'Whose email is this?',
+  'patient.emailOwner.mine': 'Mine',
+  'patient.emailOwner.patient': "{name}'s",
+  'patient.emailOwner.patientNoName': "The patient's",
+  'insurance.has.legend': 'Does {name} have health insurance?',
+  'insurance.has.legend.self': 'Do you have health insurance?',
+  'insurance.has.hint': 'This includes Medicare and Medicaid.',
+  'insurance.has.yes': 'Yes',
+  'insurance.has.no': 'No',
+  'insurance.has.notSure': "I'm not sure",
+  'insurance.notSureNote':
+    'That is fine. Bring any insurance or Medicare card to the clinic and the pharmacist will check it there.',
+  'insurance.card.title': "Add {name}'s insurance card",
+  'insurance.card.title.self': 'Add your insurance card',
+  'insurance.card.hint': "Add photos of the front and back. We'll fill in the details.",
+  'insurance.card.photos': 'Photos of the card',
+  'insurance.uploadPhoto': 'Upload photo',
+  'insurance.replacePhoto': 'Replace photo',
+  'insurance.takePhoto': 'Take photo',
+  'insurance.ofSide': ': {side}',
+  'insurance.readResult':
+    'We read this from the card: {details}. If it is not right, choose "Enter details manually".',
+  'insurance.details.title': "Enter {name}'s insurance details",
+  'insurance.details.title.self': 'Enter your insurance details',
+  'insurance.uploadInstead': 'Upload a card instead',
+  'insurance.companyHint': 'As shown on the card.',
+  'insurance.groupHint': 'Enter it if it is shown on the card.',
+  'extras.health.text': 'Answer these now to save time at the clinic.',
+  'extras.health.notStarted': 'Not started',
+  'extras.health.open': 'Answer health questions',
+  'extras.health.change': 'Change answers',
+  'extras.phone': 'Phone number',
+  'extras.phoneHint': 'In case the pharmacy needs to reach {name}.',
+  'extras.phoneHint.self': 'In case the pharmacy needs to reach you.',
+  'extras.reminders.text':
+    'Would you like a reminder before the clinic? Choose email, text message, or both.',
+  'extras.reminders.byEmail': 'Remind me by email',
+  'extras.reminders.byText': 'Remind me by text message',
+  'extras.reminders.emailTo': 'Where to send the email reminder',
+  'extras.reminders.textTo': 'Where to send the text reminder',
+  'extras.reminders.sameEmail': 'The email given for the confirmation',
+  'extras.reminders.samePhone': 'The phone number given earlier',
+  'extras.reminders.otherEmail': 'Use a different email',
+  'extras.reminders.otherPhone': 'Use a different number',
+  'extras.reminders.note':
+    'The sign-up confirmation is emailed whether or not you choose a reminder.',
+  'extras.race': 'Race',
+
+  'vaccines.productDraft': 'Product notes are a draft, not yet approved.',
+  'insurance.planName': 'Plan name',
+  'insurance.bin': 'BIN',
+  'insurance.pcn': 'PCN',
+  'reason.insurance.planName':
+    'The plan name is shown on the insurance card and is used for billing.',
+  'reason.insurance.bin': 'The BIN routes the pharmacy claim to the correct claims processor.',
+  'reason.insurance.pcn': 'The PCN is a second routing number, used together with the BIN.',
+  'error.cardDetail': 'Enter this detail as it is shown on the card.',
+  'error.sex': 'Choose one. "Prefer not to say" is one of the choices.',
+  'stamps.goTo': 'Go to {name}',
+  'product.fluzone-hd.details': 'High-dose flu vaccine made for adults 65 and over.',
+  'product.fluad.details':
+    'Flu vaccine with an added ingredient (adjuvant) for a stronger response, for adults 65 and over.',
+  'product.flublok.details': 'Egg-free flu vaccine for adults 18 and over.',
+  'product.fluzone.details': 'Standard-dose flu vaccine for ages 6 months and over.',
+  'product.spikevax.details': 'mRNA COVID-19 vaccine from Moderna.',
+  'product.comirnaty.details': 'mRNA COVID-19 vaccine from Pfizer-BioNTech.',
+  'product.nuvaxovid.details':
+    'Protein-based COVID-19 vaccine from Novavax, an option for people who prefer not to have an mRNA vaccine.',
+  'product.arexvy.details': 'RSV vaccine from GSK for older adults. One dose.',
+  'product.abrysvo.details':
+    'RSV vaccine from Pfizer for older adults, also given in pregnancy to protect the newborn. One dose.',
+  'product.mresvia.details': 'mRNA RSV vaccine from Moderna for older adults. One dose.',
+  'product.boostrix.details': 'Tdap booster from GSK, for ages 10 and over.',
+  'product.adacel.details': 'Tdap booster from Sanofi, for ages 10 to 64.',
+  'product.shingrix.details':
+    'Recombinant shingles vaccine from GSK. Two doses, 2 to 6 months apart.',
+  'product.prevnar20.details': 'Conjugate vaccine from Pfizer covering 20 types of pneumococcus.',
+  'product.capvaxive.details': 'Conjugate vaccine from Merck covering 21 types, made for adults.',
+  'product.vaxneuvance.details': 'Conjugate vaccine from Merck covering 15 types of pneumococcus.',
+  'product.pneumovax23.details':
+    'Polysaccharide vaccine from Merck covering 23 types of pneumococcus.',
+  'product.heplisav-b.details': 'Two doses, one month apart. For adults 18 and over.',
+  'product.engerix-b.details': 'Three doses over six months.',
+  'product.recombivax-hb.details': 'Three doses over six months.',
+  'product.havrix.details': 'Two doses, at least six months apart.',
+  'product.vaqta.details': 'Two doses, at least six months apart.',
+  'product.mmr-ii.details': 'Live vaccine from Merck against measles, mumps and rubella.',
+  'product.priorix.details': 'Live vaccine from GSK against measles, mumps and rubella.',
+  'product.varivax.details': 'Live chickenpox vaccine from Merck. Two doses.',
+  'product.ipol.details': 'Inactivated polio vaccine from Sanofi, given as a shot.',
+  'product.menquadfi.details': 'For ages 2 and over.',
+  'product.menveo.details': 'For ages 2 months to 55 years.',
+  'product.daptacel.details': 'For children 6 weeks through 6 years old.',
+  'product.infanrix.details': 'For children 6 weeks through 6 years old.',
+  'product.acthib.details': 'Given as a series in infancy, with a booster.',
+  'product.pedvaxhib.details': 'Given as a series in infancy, with a booster.',
+  'product.hiberix.details': 'Given as a series in infancy, with a booster.',
+  'product.rotateq.details': 'Drops by mouth. Three doses.',
+  'product.rotarix.details': 'Drops by mouth. Two doses.',
+  'product.gardasil9.details': 'Covers 9 types of HPV. Two or three doses, depending on age.',
 } as const;
 
 export type StringKey = keyof typeof en;

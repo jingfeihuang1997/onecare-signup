@@ -18,10 +18,12 @@ interface StampsProps {
   flat?: boolean;
   /** Hidden from 900px, where the pass in the side column shows the stamps. */
   narrowOnly?: boolean;
+  /** Makes every stamp a button that opens its step (SPEC 10.1, item 20). */
+  onSelect?: (id: string) => void;
 }
 
 /** Option B: one stamp per step. Done stamps are filled and tilted. */
-export function Stamps({ items, flat = false, narrowOnly = false }: StampsProps) {
+export function Stamps({ items, flat = false, narrowOnly = false, onSelect }: StampsProps) {
   const { t } = useI18n();
   const currentIndex = items.findIndex((item) => item.state === 'current');
   const allDone = items.length > 0 && items.every((item) => item.state === 'done');
@@ -34,23 +36,39 @@ export function Stamps({ items, flat = false, narrowOnly = false }: StampsProps)
       className={cx('oc-stamps', flat && 'oc-stamps--flat', narrowOnly && 'oc-narrow-only')}
       aria-label={label}
     >
-      {items.map((item) => (
-        <div
-          key={item.id}
-          className={cx(
-            'oc-stamp',
-            item.state === 'done' && 'is-done',
-            item.state === 'current' && 'is-current',
-          )}
-          aria-current={item.state === 'current' ? 'step' : undefined}
-        >
-          <span className="oc-stamp__mark" aria-hidden="true">
-            {item.state === 'done' ? <Icon name="check" size={18} strokeWidth={3} /> : item.mark}
-          </span>
-          <span>{item.label}</span>
-          {item.state === 'done' ? <span className="oc-sr">{t('stamps.done')}</span> : null}
-        </div>
-      ))}
+      {items.map((item) => {
+        const className = cx(
+          'oc-stamp',
+          item.state === 'done' && 'is-done',
+          item.state === 'current' && 'is-current',
+        );
+        const current = item.state === 'current' ? 'step' : undefined;
+        const content = (
+          <>
+            <span className="oc-stamp__mark" aria-hidden="true">
+              {item.state === 'done' ? <Icon name="check" size={18} strokeWidth={3} /> : item.mark}
+            </span>
+            <span>{item.label}</span>
+            {item.state === 'done' ? <span className="oc-sr">{t('stamps.done')}</span> : null}
+          </>
+        );
+        return onSelect ? (
+          <button
+            key={item.id}
+            type="button"
+            className={className}
+            aria-current={current}
+            title={t('stamps.goTo', { name: item.label })}
+            onClick={() => onSelect(item.id)}
+          >
+            {content}
+          </button>
+        ) : (
+          <div key={item.id} className={className} aria-current={current}>
+            {content}
+          </div>
+        );
+      })}
     </nav>
   );
 }

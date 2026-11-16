@@ -1,4 +1,4 @@
-import { useContext, useEffect, useState } from 'react';
+import { useContext, useEffect, useRef, useState } from 'react';
 import {
   Button,
   Choice,
@@ -12,6 +12,7 @@ import { useI18n } from '../i18n';
 import { useServices } from '../services';
 import {
   buildSignature,
+  capitalizeFirst,
   fieldRules,
   hasHelper,
   helperFullName,
@@ -64,11 +65,15 @@ export function SignSection() {
   const allowed = sign.signerRole === 'helper' ? helperPath : sign.signerRole === 'patient' && canPatientSign;
   const defaultRole: SignerRole = helperPath ? 'helper' : 'patient';
   const defaultName = defaultRole === 'helper' ? helperName : patientName;
+  // Someone signing up themselves is not asked "Who is signing?". With one possible signer
+  // the name and the typed signature follow the name given earlier (SPEC 10.1, item 17).
+  const oneSigner = !(canPatientSign && helperPath);
+  const follows = useRef(oneSigner && (!isFilled(sign.signerName) || sign.signerName === defaultName));
   useEffect(() => {
-    if (!allowed) {
+    if (!allowed || (follows.current && sign.signerName !== defaultName)) {
       dispatch({ type: 'sign/update', patch: { signerRole: defaultRole, signerName: defaultName } });
     }
-  }, [allowed, defaultRole, defaultName, dispatch]);
+  }, [allowed, defaultRole, defaultName, sign.signerName, dispatch]);
 
   const chooseRole = (signerRole: SignerRole) =>
     update({ signerRole, signerName: signerRole === 'helper' ? helperName : patientName });
@@ -125,19 +130,19 @@ export function SignSection() {
       <p className="oc-lead">{t('sign.lead')}</p>
       {shell?.reviewList}
 
-      <fieldset className="oc-fieldset">
-        <legend className="oc-label">{t('sign.who')}</legend>
-        {canPatientSign ? (
-          <Choice
-            kind="radio"
-            name="signer"
-            title={patientName}
-            sub={t('sign.thePatient')}
-            checked={sign.signerRole === 'patient'}
-            onChange={() => chooseRole('patient')}
-          />
-        ) : null}
-        {helperPath ? (
+      {helperPath ? (
+        <fieldset className="oc-fieldset">
+          <legend className="oc-label">{t('sign.who')}</legend>
+          {canPatientSign ? (
+            <Choice
+              kind="radio"
+              name="signer"
+              title={patientName}
+              sub={t('sign.thePatient')}
+              checked={sign.signerRole === 'patient'}
+              onChange={() => chooseRole('patient')}
+            />
+          ) : null}
           <Choice
             kind="radio"
             name="signer"
@@ -146,17 +151,22 @@ export function SignSection() {
             checked={sign.signerRole === 'helper'}
             onChange={() => chooseRole('helper')}
           />
-        ) : null}
-      </fieldset>
+        </fieldset>
+      ) : null}
 
       <Field
         id={NAME_ID}
         label={t('sign.signerName')}
         autoComplete="name"
+        autoCapitalize="words"
         value={sign.signerName}
         hint={t('sign.signerNameHint')}
         error={tried && nameMissing ? t('error.signerName') : undefined}
-        onChange={(event) => update({ signerName: event.target.value })}
+        onChange={(event) => {
+          // Once the person types here, the name is theirs to set.
+          follows.current = false;
+          update({ signerName: capitalizeFirst(event.target.value) });
+        }}
       />
 
       <div className="oc-field">

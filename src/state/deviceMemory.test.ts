@@ -45,7 +45,9 @@ function draftFullOfSecrets(): SignupDraft {
   const { draft } = referenceState();
   return {
     ...draft,
+    patient: { ...draft.patient, sex: SECRETS.sex },
     insurance: {
+      has: 'yes',
       kind: 'medicare',
       medicareNumber: SECRETS.medicareNumber,
       ssnLast4: SECRETS.ssnLast4,
@@ -65,8 +67,10 @@ function draftFullOfSecrets(): SignupDraft {
     extras: {
       ...draft.extras,
       health: { saved: true, answers: draft.extras.health.answers.map(() => 'yes' as const) },
-      sex: SECRETS.sex,
       race: SECRETS.race,
+      phone: '(313) 555-0100',
+      remindByEmail: true,
+      remindByText: true,
       reminderPhone: '(313) 555-0199',
       reminderEmail: 'maria@example.com',
     },
@@ -147,12 +151,12 @@ describe('device memory: what is stored', () => {
 
     expect(Object.keys(stored).sort()).toEqual(['helper', 'patients', 'prefs', 'version']);
     expect(Object.keys(stored.helper).sort()).toEqual([
-      'email', 'firstName', 'lastName', 'phone', 'relationship', 'relationshipOther', 'savedAt',
+      'firstName', 'lastName', 'phone', 'relationship', 'relationshipOther', 'savedAt',
     ]);
     expect(Object.keys(stored.patients[0]).sort()).toEqual([
-      'address', 'clinicToken', 'confirmed', 'currentSection', 'dob', 'firstName', 'forWhom', 'id',
-      'lastName', 'preferredName', 'reminderEmail', 'reminderPhone', 'savedAt', 'submitted',
-      'vaccines',
+      'address', 'clinicToken', 'confirmed', 'currentSection', 'dob', 'email', 'emailOwner',
+      'firstName', 'forWhom', 'id', 'lastName', 'phone', 'preferredName', 'remindByEmail',
+      'remindByText', 'reminderEmail', 'reminderPhone', 'savedAt', 'submitted', 'vaccines',
     ]);
     expect(stored.patients[0]).toMatchObject({
       firstName: 'Maria',
@@ -160,6 +164,9 @@ describe('device memory: what is stored', () => {
       dob: { month: '04', day: '12', year: '1954' },
       currentSection: 'done',
       submitted: true,
+      email: 'ana.lopez@example.com',
+      phone: '(313) 555-0100',
+      remindByText: true,
       reminderPhone: '(313) 555-0199',
       address: { kind: 'entered', street: '1420 Maple St', zip: '48104' },
     });
@@ -242,11 +249,15 @@ describe('device memory: continue, expire, forget', () => {
     // Insurance and the optional details lost their content, so they are not done any more.
     expect(draft.confirmed).toEqual(['patient', 'helper', 'vaccines']);
     expect(draft.extras.reminderEmail).toBe('maria@example.com');
+    expect(draft.extras.remindByEmail).toBe(true);
+    expect(draft.patient.email).toBe('ana.lopez@example.com');
 
+    expect(draft.insurance.has).toBeNull();
     expect(draft.insurance.kind).toBeNull();
     expect(draft.insurance.medicareNumber).toBe('');
     expect(draft.extras.health).toEqual({ saved: false, answers: Array(14).fill('no') });
-    expect(draft.extras.sex).toBeNull();
+    expect(draft.patient.sex).toBeNull();
+    expect(draft.extras.race).toBeNull();
     expect(draft.sign.drawing).toBeNull();
     expect(draft.signature).toBeNull();
     expect(draft.lookup.status).toBe('idle');
@@ -278,7 +289,7 @@ describe('device memory: continue, expire, forget', () => {
     expect(memory.read().patients.map((entry) => entry.id)).toEqual(['new-draft']);
   });
 
-  it('"Forget what is saved on this phone" deletes the key', () => {
+  it('"Forget what is saved on this device" deletes the key', () => {
     const { memory, storage } = setup();
     memory.savePrefs({ textSizeStep: 3 });
     memory.saveDraft(referenceState().draft);

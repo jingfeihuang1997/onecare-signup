@@ -4,6 +4,13 @@ export function isFilled(value: string): boolean {
   return value.trim().length > 0;
 }
 
+/** Names start with a capital letter. Only the first letter changes: "de la Cruz" keeps its small words after it. */
+export function capitalizeFirst(value: string): string {
+  const start = value.search(/\S/);
+  if (start === -1) return value;
+  return value.slice(0, start) + value.charAt(start).toLocaleUpperCase() + value.slice(start + 1);
+}
+
 export function isEmail(value: string): boolean {
   return /^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(value.trim());
 }

@@ -25,7 +25,7 @@ describe('option A at /a', () => {
       expect.stringMatching(/^3Vaccines/),
       expect.stringMatching(/^4Insurance and Medicare/),
       expect.stringMatching(/^5Save time at the clinic/),
-      expect.stringMatching(/^6Review and sign/),
+      expect.stringMatching(/^6Consent and signature/),
     ]);
     expect(head('Patient')).toHaveAttribute('aria-expanded', 'true');
     expect(head('Patient')).toHaveFocus();
@@ -86,12 +86,12 @@ describe('option A at /a', () => {
     expect(sheet.getByRole('button', { name: 'Save time at the clinic Optional' })).toBeInTheDocument();
     expect(sheet.getByRole('button', { name: 'Vaccines Not started' })).toBeInTheDocument();
 
-    await userEvent.click(sheet.getByRole('button', { name: /^Review and sign/ }));
+    await userEvent.click(sheet.getByRole('button', { name: /^Consent and signature/ }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
     expect(path()).toBe('/a/signup/sign');
-    expect(head('Review and sign')).toHaveAttribute('aria-expanded', 'true');
-    expect(head('Review and sign')).toHaveFocus();
-    expect(screen.getByText('Section 6 of 6 · Review and sign')).toBeInTheDocument();
+    expect(head('Consent and signature')).toHaveAttribute('aria-expanded', 'true');
+    expect(head('Consent and signature')).toHaveFocus();
+    expect(screen.getByText('Section 6 of 6 · Consent and signature')).toBeInTheDocument();
   });
 
   it('"Myself" has five panels and no "Your details"', async () => {
@@ -136,9 +136,14 @@ describe('option A at /a', () => {
     expect(main().getAllByRole('heading', { level: 2 })).toHaveLength(6);
     expect(head('Vaccines')).toHaveAttribute('aria-expanded', 'true');
     expect(head('Your details')).toHaveTextContent('Ana Lopez · Daughter or son · (313) 555-0142');
-    // The record is looked up again quietly, then Patient shows as done.
-    await waitFor(() => expect(head('Patient').closest('.oc-panel')).toHaveClass('is-done'));
     expect(head('Your details').closest('.oc-panel')).toHaveClass('is-done');
+    // Sex is required but never stored on the device, so Patient has to be visited again.
+    expect(head('Patient')).toHaveTextContent('Daniel Brooks');
+    expect(head('Patient').closest('.oc-panel')).not.toHaveClass('is-done');
+    await userEvent.click(head('Patient'));
+    await userEvent.selectOptions(main().getByLabelText('Sex'), 'Male');
+    await press('Continue');
+    await waitFor(() => expect(head('Patient').closest('.oc-panel')).toHaveClass('is-done'));
   });
 
   it('a deep link with no sign-up in progress goes to Start', async () => {
@@ -203,6 +208,21 @@ describe('option B at /b', () => {
     await press('Back');
     expect(path()).toBe('/b');
     expect(screen.getByRole('heading', { name: /Who is it for\?$/ })).toBeInTheDocument();
+  });
+
+  it('a stamp opens its step, and a step that is not finished stays marked as not done', async () => {
+    await start('/b', "Someone I'm helping");
+    const stamps = () => within(screen.getAllByRole('navigation', { name: /^Pass progress/ })[0] as HTMLElement);
+    // Nothing is filled in yet: jump ahead to Sign, then back to Card.
+    await userEvent.click(stamps().getByRole('button', { name: /Sign/ }));
+    await atPath('/b/sign');
+    expect(stamps().getByRole('button', { name: /Sign/ })).toHaveAttribute('aria-current', 'step');
+    expect(stamps().getByRole('button', { name: /Who/ })).not.toHaveClass('is-done');
+    await userEvent.click(stamps().getByRole('button', { name: /Card/ }));
+    await atPath('/b/insurance');
+    // "Who" covers two steps: it opens the first one that is not finished.
+    await userEvent.click(stamps().getByRole('button', { name: /Who/ }));
+    await atPath('/b/patient');
   });
 
   it('"Me" skips "And who are you?"', async () => {

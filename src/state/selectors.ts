@@ -3,8 +3,8 @@ import { isAllowedAtAge, MOCK_AGE_RULES, type AgeRules } from '../data/ageRules'
 import { getVaccine } from '../data/vaccines';
 import type {
   Clinic,
+  EmailOwner,
   ExtrasItem,
-  InsuranceKind,
   ProductChoice,
   SectionId,
   Vaccine,
@@ -38,7 +38,7 @@ export interface FieldRules {
   age: number | null;
   /** Under 18: someone else must sign up for the patient, and the patient cannot sign. */
   requiresHelper: boolean;
-  /** 65 and over: Medicare number and last 4 of the SSN are offered. */
+  /** 65 and over: Medicare can be chosen when the insurance details are typed in. */
   showMedicare: boolean;
 }
 
@@ -71,9 +71,41 @@ export function nextSection(state: SignupState, after: SectionId): SectionId | n
   return index === -1 ? null : (list[index + 1] ?? null);
 }
 
-/** Insurance kinds offered to this patient. Medicare appears from age 65. */
-export function insuranceKinds(state: SignupState): InsuranceKind[] {
-  return fieldRules(state).showMedicare ? ['medicare', 'other', 'none'] : ['other', 'none'];
+/** Whose email the confirmation goes to. Until chosen: the person filling in the form. */
+export function emailOwner(state: SignupState): EmailOwner {
+  return state.draft.patient.emailOwner ?? (state.draft.forWhom === 'other' ? 'helper' : 'patient');
+}
+
+/** A phone number given earlier in the sign-up: the patient's, else the helper's. */
+export function knownPhone(state: SignupState): string {
+  const { extras, helper } = state.draft;
+  if (isUsPhone(extras.phone)) return extras.phone.trim();
+  return hasHelper(state) && isUsPhone(helper.phone) ? helper.phone.trim() : '';
+}
+
+export interface ReminderTargets {
+  /** Where an email reminder goes, or null when none was asked for. */
+  email: string | null;
+  /** Where a text reminder goes, or null when none was asked for. */
+  phone: string | null;
+}
+
+/** Reminders use what was given earlier unless a different address or number was typed. */
+export function reminderTargets(state: SignupState): ReminderTargets {
+  const { extras, patient } = state.draft;
+  return {
+    email: extras.remindByEmail ? extras.reminderEmail.trim() || patient.email.trim() : null,
+    phone: extras.remindByText ? extras.reminderPhone.trim() || knownPhone(state) : null,
+  };
+}
+
+/** Whether the reminders asked for can be sent. Nothing asked for is fine. */
+export function remindersValid(state: SignupState): boolean {
+  const targets = reminderTargets(state);
+  return (
+    (targets.email === null || isEmail(targets.email)) &&
+    (targets.phone === null || isUsPhone(targets.phone))
+  );
 }
 
 /** Whether a section's own content is filled in correctly. `now` is injectable for tests. */
@@ -95,6 +127,8 @@ export function isSectionValid(
         isFilled(draft.patient.lastName) &&
         birth !== null &&
         compareDates(birth, calendarDay(now)) <= 0 &&
+        draft.patient.sex !== null &&
+        isEmail(draft.patient.email) &&
         looked
       );
     }
@@ -107,22 +141,27 @@ export function isSectionValid(
         isFilled(helper.firstName) &&
         isFilled(helper.lastName) &&
         relationshipGiven &&
-        isUsPhone(helper.phone) &&
-        isEmail(helper.email)
+        isUsPhone(helper.phone)
       );
     }
     case 'vaccines':
       return draft.vaccines.selections.length > 0 || draft.vaccines.notSure;
     case 'insurance': {
       const { insurance } = draft;
-      if (!config.insuranceRequired || insurance.kind === 'none') return true;
+      if (!config.insuranceRequired) return true;
+      // "No" and "I'm not sure" complete the section (SPEC 10.1, item 15).
+      if (insurance.has === 'no' || insurance.has === 'notSure') return true;
+      if (insurance.has !== 'yes') return false;
+      if (insurance.entry === 'photo') {
+        return insurance.frontImage !== null && insurance.backImage !== null;
+      }
       if (insurance.kind === 'medicare') {
         return isMedicareNumber(insurance.medicareNumber) && isSsnLast4(insurance.ssnLast4);
       }
       if (insurance.kind === 'other') {
-        const bothPhotos = insurance.frontImage !== null && insurance.backImage !== null;
-        const allTyped = Object.values(insurance.card).every(isFilled);
-        return bothPhotos || allTyped;
+        // Group ID is optional: not every card has one.
+        const { company, planName, bin, pcn, memberId } = insurance.card;
+        return [company, planName, bin, pcn, memberId].every(isFilled) && isSsnLast4(insurance.ssnLast4);
       }
       return false;
     }
@@ -260,8 +299,8 @@ export function stillOpen(state: SignupState): ExtrasItem[] {
   const { extras } = state.draft;
   const open: ExtrasItem[] = [];
   if (!extras.health.saved) open.push('health');
-  if (extras.sex === null || extras.race === null) open.push('more');
   if (extras.address === null) open.push('address');
-  if (!isFilled(extras.reminderPhone) && !isFilled(extras.reminderEmail)) open.push('reminders');
+  if (!extras.remindByEmail && !extras.remindByText) open.push('reminders');
+  if (extras.race === null) open.push('more');
   return open;
 }
