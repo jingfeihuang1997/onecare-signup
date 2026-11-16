@@ -201,7 +201,7 @@ Added Nov 16, 2026, after the third review. These replace items 17, 25 and 26 wh
 30. **Sex choices.** Female, Male, Non-binary (X), Prefer not to say.
 31. **Who is signing.** Left out only for someone signing up themselves. A helper always sees it, also when the patient is under 18 and the helper is the only choice.
 
-32. **Logo, corrected.** Four tiles with rounded corners; the top right one is turned on its corner.
+32. **Logo, corrected.** Four tiles with rounded corners; the top right one is tilted slightly, as in the picture the product owner supplied.
 33. **"Device", not "phone".** What is remembered is "saved on this device".
 34. **No focus ring on arrival.** A page that has just loaded or been refreshed does not move focus to the open section, so no outline appears around its heading. After the first key press or tap, opening a section moves focus as before.
 35. **One spacing scale.** Every gap and padding uses 4, 8, 12, 16 or 24px from the variables, and every box (card, panel, pass, drop zone) has the same 12px inset.
